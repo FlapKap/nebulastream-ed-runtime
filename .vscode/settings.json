@@ -1,0 +1,33 @@
+{
+    "python.linting.enabled": true,
+    "python.jediEnabled": false,
+    "python.autoComplete.extraPaths": [
+        ".micropy/BradenM-micropy-stubs-a92a3c7/frozen",
+        ".micropy/BradenM-micropy-stubs-b98ceb3/frozen",
+        ".micropy/BradenM-micropy-stubs-4f5a52a/frozen",
+        ".micropy/BradenM-micropy-stubs-444295e/frozen",
+        ".micropy/BradenM-micropy-stubs-a92a3c7/stubs",
+        ".micropy/BradenM-micropy-stubs-b98ceb3/stubs",
+        ".micropy/nebulastream-ed-runtime"
+    ],
+    "python.autoComplete.typeshedPaths": [
+        ".micropy/BradenM-micropy-stubs-a92a3c7/frozen",
+        ".micropy/BradenM-micropy-stubs-b98ceb3/frozen",
+        ".micropy/BradenM-micropy-stubs-4f5a52a/frozen",
+        ".micropy/BradenM-micropy-stubs-444295e/frozen",
+        ".micropy/BradenM-micropy-stubs-a92a3c7/stubs",
+        ".micropy/BradenM-micropy-stubs-b98ceb3/stubs",
+        ".micropy/nebulastream-ed-runtime"
+    ],
+    "python.analysis.typeshedPaths": [
+        ".micropy/BradenM-micropy-stubs-a92a3c7/frozen",
+        ".micropy/BradenM-micropy-stubs-b98ceb3/frozen",
+        ".micropy/BradenM-micropy-stubs-4f5a52a/frozen",
+        ".micropy/BradenM-micropy-stubs-444295e/frozen",
+        ".micropy/BradenM-micropy-stubs-a92a3c7/stubs",
+        ".micropy/BradenM-micropy-stubs-b98ceb3/stubs",
+        ".micropy/nebulastream-ed-runtime"
+    ],
+    "python.linting.pylintEnabled": true,
+    "python.defaultInterpreterPath": "python3"
+}
