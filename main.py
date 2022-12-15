@@ -6,7 +6,10 @@ import logging
 import time
 from sensors import ESP32Temperature, PyTrackGPS
 from connection import LoRaWAN
+import micropython
 
+# set compilation optimization level
+micropython.opt_level(0) # no optimization. __debug__ = True
 
 # load config
 config = json.load(io.open("config.json", mode='r'))
