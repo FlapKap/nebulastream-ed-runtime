@@ -145,3 +145,4 @@ dmypy.json
 .micropy/
 !micropy.json
 !src/lib
+.DS_Store
