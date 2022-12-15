@@ -29,5 +29,7 @@
         ".micropy/nebulastream-ed-runtime"
     ],
     "python.linting.pylintEnabled": true,
-    "python.defaultInterpreterPath": "python3"
+    "python.defaultInterpreterPath": "python3",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.linting.mypyEnabled": false
 }
