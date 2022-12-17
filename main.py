@@ -6,6 +6,7 @@ import logging
 import time
 from sensors import ESP32Temperature, PyTrackGPS
 from connection import LoRaWAN
+from calculator import *
 import micropython
 
 # set compilation optimization level
@@ -22,8 +23,15 @@ logging.basicConfig(level=loglevel, force=True)
 logger = logging.getLogger(__name__)
 
 logger.info("config loaded")
+logger.info("loglevel set to {}".format(loglevel))
 
 # set up connection
 
 logger.info("initialising connection")
 lora = LoRaWAN(lora_config["joineui"], lora_config["appkey"])
+logger.debug("hej")
+
+calc = Calculator(bytes([CONST, 2, CONST, 3, ADD, CONST, 5, LT]))
+print(calc.execute())
+
+logging.shutdown()

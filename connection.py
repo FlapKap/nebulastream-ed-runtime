@@ -24,8 +24,9 @@ class LoRaWAN:
             # Australia = LoRa.AU915
             # Europe = LoRa.EU868
             # United States = LoRa.US915
+        
+        # define lora object
         self.lora = LoRa(mode=LoRa.LORAWAN, region=self.region)
-
         self._data_waiting = False
 
         def handler():
@@ -40,6 +41,7 @@ class LoRaWAN:
 
     def connect(self):
         logger.info("connecting...")
+
         # cache for speed
         lora = self.lora
         # create an OTAA authentication parameters

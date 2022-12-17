@@ -115,7 +115,7 @@ class Logger:
         self.level = level
 
     def isEnabledFor(self, level):
-        return level >= self.level or level >= _level
+        return level >= (self.level or _level)
 
     def log(self, level, msg, *args):
         if self.isEnabledFor(level):
