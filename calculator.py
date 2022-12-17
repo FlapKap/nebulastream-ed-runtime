@@ -1,5 +1,4 @@
 from micropython import const
-from enum import IntEnum
 import logging
 
 logger = logging.getLogger(__name__)
@@ -7,8 +6,29 @@ logger = logging.getLogger(__name__)
 # types
 # maybe relevant if we want to represent the stack as a byte array for optimization purposes
 # then we need to know the size of each type
+INT8 = const(1)
+UINT8 = const(2)
+INT16 = const(3)
+UINT16 = const(4)
+INT32 = const(5)
+UINT32 = const(6)
+INT64 = const(7)
+UINT64 = const(8)
+FLOAT = const(9)
+DOUBLE = const(10)
 
-
+type_to_fmt = {
+    INT8: "<b",
+    UINT8: "<B",
+    INT16: "<h",
+    UINT16: "<H",
+    INT32: "<i",
+    UINT32: "<I",
+    INT64: "<q",
+    UINT64: "<Q",
+    FLOAT: "<f",
+    DOUBLE: "<d"
+}
 # instructions
 # data
 # these indicate that the next value in the instrlist is a value
@@ -32,8 +52,25 @@ MUL = const(11)
 DIV = const(12)
 MOD = const(13)
 
+instr_to_name = {
+    CONST: "CONST",
+    VAR: "VAR",
+    AND: "AND",
+    OR: "OR",
+    NOT: "NOT",
+    LT: "LT",
+    GT: "GT",
+    EQ: "EQ",
+    ADD: "ADD",
+    SUB: "SUB",
+    MUL: "MUL",
+    DIV: "DIV",
+    MOD: "MOD"
+}
 
 # might be better in future to make class based on bytearray
+
+
 class Stack:
     def __init__(self, iterable=None):
         logger.debug("Initialise Stack with iterable {}".format(iterable))
@@ -67,10 +104,11 @@ class Stack:
 
 
 class Calculator:
-    def __init__(self, program: bytes, environment: list, stack_init=None):
+    def __init__(self, program: bytes, environment=None, stack_init=None):
+        # TODO: program as bytes limit values to 2^8. Should be fixed.
         self.program = program
         self.pc = 0  # program counter
-        self.environment = environment
+        self.environment = environment if environment else []
         self.s = Stack(stack_init)
         self.cases = {
             CONST: self.__const,
@@ -88,11 +126,31 @@ class Calculator:
             MOD: self.__mod
         }
 
+    def __str__(self):
+        # create list of instr as string
+        instrs = []
+        instr_iter = enumerate(self.program)
+        pc = self.pc
+        for i, inst in instr_iter:
+            instr_str = instr_to_name[inst]
+            if i == pc:  # if this is current instr, mark
+                instr_str = "*{}*".format(instr_str)
+
+            instrs.append(instr_str)
+
+            # if current instr has data, append that data and advance iter
+            if inst in (CONST, VAR):
+                instrs.append(str(next(instr_iter)))
+        instrs = "[" + ",".join(instrs) + "]"
+        return "Calculator(\n\tpc: {}\n\tprogram: {}\n\tenv: {}\n\t{})".format(self.pc, instrs, self.environment, self.s)
+
     def execute(self):
         while self.pc < len(self.program):
-            self.cases[self.program[self.pc]]()
+            instr = self.program[self.pc]
             self.pc += 1
-        
+            self.cases[instr]()
+
+        return self.s.pop()
 
     def __const(self):
         '''push next element from program as data to the stack, and increase program counter'''
@@ -130,12 +188,9 @@ class Calculator:
 
     def __mul(self):
         self.s.push(self.s.pop() * self.s.pop())
-    
+
     def __div(self):
         self.s.push(self.s.pop() / self.s.pop())
 
     def __mod(self):
         self.s.push(self.s.pop() % self.s.pop())
-
-
-
