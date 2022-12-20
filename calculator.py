@@ -104,7 +104,7 @@ class Stack:
 
 
 class Calculator:
-    def __init__(self, program: bytes, environment=None, stack_init=None):
+    def __init__(self, program: bytes, stack_init=None, environment=None):
         # TODO: program as bytes limit values to 2^8. Should be fixed.
         self.program = program
         self.pc = 0  # program counter

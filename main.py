@@ -9,29 +9,34 @@ from connection import LoRaWAN
 from calculator import *
 import micropython
 
-# set compilation optimization level
-micropython.opt_level(0) # no optimization. __debug__ = True
+import unittest
+import tests.test_calculator
 
-# load config
-config = json.load(io.open("config.json", mode='r'))
-lora_config = config["lora"]
+unittest.main(test_calculator)
 
-# set up logging
-loglevel = {"info": logging.INFO, "warning": logging.WARNING,
-            "debug": logging.DEBUG, "error": logging.ERROR}[config["loglevel"]]
-logging.basicConfig(level=loglevel, force=True)
-logger = logging.getLogger(__name__)
+# # set compilation optimization level
+# micropython.opt_level(0) # no optimization. __debug__ = True
 
-logger.info("config loaded")
-logger.info("loglevel set to {}".format(loglevel))
+# # load config
+# config = json.load(io.open("config.json", mode='r'))
+# lora_config = config["lora"]
 
-# set up connection
+# # set up logging
+# loglevel = {"info": logging.INFO, "warning": logging.WARNING,
+#             "debug": logging.DEBUG, "error": logging.ERROR}[config["loglevel"]]
+# logging.basicConfig(level=loglevel, force=True)
+# logger = logging.getLogger(__name__)
 
-logger.info("initialising connection")
-lora = LoRaWAN(lora_config["joineui"], lora_config["appkey"])
-logger.debug("hej")
+# logger.info("config loaded")
+# logger.info("loglevel set to {}".format(loglevel))
 
-calc = Calculator(bytes([CONST, 2, CONST, 3, ADD, CONST, 5, LT]))
-print(calc.execute())
+# # set up connection
 
-logging.shutdown()
+# logger.info("initialising connection")
+# lora = LoRaWAN(lora_config["joineui"], lora_config["appkey"])
+# logger.debug("hej")
+
+# calc = Calculator(bytes([CONST, 2, CONST, 3, ADD, CONST, 5, LT]))
+# print(calc.execute())
+
+# logging.shutdown()
