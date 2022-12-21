@@ -1,7 +1,15 @@
 from micropython import const
 import logging
+import struct
 
 logger = logging.getLogger(__name__)
+
+# stack-based language
+# consists of instr and values in a bytearray to execute operations on a stack
+# there are 2 special operations: CONST and VAR.
+# CONST: is followed by a type constant and a value of the size of the type constant.
+# VAR: is followed by a uint8 value.
+# it is assumed values from sensors are placed in the environement at an index corresponding to their id
 
 # types
 # maybe relevant if we want to represent the stack as a byte array for optimization purposes
@@ -152,15 +160,28 @@ class Calculator:
 
         return self.s.pop()
 
+    def __pop_value(self):
+        ## pop type of value
+        typ = self.program[self.pc]
+        self.pc += 1
+        ## fetch value
+        fmt = type_to_fmt[typ]
+        value = struct.unpack_from(fmt, self.program, self.pc)[0]
+        ## increment pc by length of value
+        self.pc += struct.calcsize(fmt)
+        
+        return value
+
     def __const(self):
         '''push next element from program as data to the stack, and increase program counter'''
-        self.s.push(self.program[self.pc])
+        self.s.push(self.__pop_value())
         self.pc += 1
 
     def __var(self):
         '''read next value from program as key to value in env, and push env value to stack'''
-        self.s.push(self.environment[self.program[self.pc]])
-        self.pc += 1
+        var_index = self.program[struct.unpack_from("<B",self.program, self.pc)[0]]
+        self.s.push(self.environment[var_index])
+        self.pc += struct.calcsize("<B")
 
     def __and(self):
         self.s.push(self.s.pop() and self.s.pop())
