@@ -6,30 +6,42 @@ import logging
 import time
 from sensors import ESP32Temperature, PyTrackGPS
 from connection import LoRaWAN
-from calculator import *
+from expression import *
+from operators import *
 import micropython
 
-import unittest
-import tests.test_calculator
 
-unittest.main(test_calculator)
 
-# # set compilation optimization level
-# micropython.opt_level(0) # no optimization. __debug__ = True
+# set compilation optimization level
+micropython.opt_level(0) # no optimization. __debug__ = True
 
-# # load config
-# config = json.load(io.open("config.json", mode='r'))
-# lora_config = config["lora"]
+# load config
+config = json.load(io.open("config.json", mode='r'))
+lora_config = config["lora"]
 
-# # set up logging
-# loglevel = {"info": logging.INFO, "warning": logging.WARNING,
-#             "debug": logging.DEBUG, "error": logging.ERROR}[config["loglevel"]]
-# logging.basicConfig(level=loglevel, force=True)
-# logger = logging.getLogger(__name__)
+# set up logging
+loglevel = {"info": logging.INFO, "warning": logging.WARNING,
+            "debug": logging.DEBUG, "error": logging.ERROR}[config["loglevel"]]
+logging.basicConfig(level=loglevel, force=True)
+logger = logging.getLogger(__name__)
 
-# logger.info("config loaded")
-# logger.info("loglevel set to {}".format(loglevel))
+logger.info("config loaded")
+logger.info("loglevel set to {}".format(loglevel))
 
+# set up pipe
+operations = [Map(lambda x: x*2), Map(lambda x: x*-1), Filter(lambda x: x > 0), Map(lambda x: x+1)]
+
+value = 2
+
+for op in operations:
+    logger.debug("oper: {}, val: {}".format(op,value))
+    value = op(value)
+    if value is None:
+        break
+
+
+print(value)
+logging.shutdown()
 # # set up connection
 
 # logger.info("initialising connection")
