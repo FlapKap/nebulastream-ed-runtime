@@ -14,16 +14,16 @@ logger = logging.getLogger(__name__)
 # types
 # maybe relevant if we want to represent the stack as a byte array for optimization purposes
 # then we need to know the size of each type
-INT8 = const(1)
-UINT8 = const(2)
-INT16 = const(3)
-UINT16 = const(4)
-INT32 = const(5)
-UINT32 = const(6)
-INT64 = const(7)
-UINT64 = const(8)
-FLOAT = const(9)
-DOUBLE = const(10)
+INT8 = const(0)
+UINT8 = const(1)
+INT16 = const(2)
+UINT16 = const(3)
+INT32 = const(4)
+UINT32 = const(5)
+INT64 = const(6)
+UINT64 = const(7)
+FLOAT = const(8)
+DOUBLE = const(9)
 
 type_to_fmt = {
     INT8: "<b",
@@ -40,25 +40,25 @@ type_to_fmt = {
 # instructions
 # data
 # these indicate that the next value in the instrlist is a value
-CONST = const(1)
-VAR = const(2)
+CONST = const(0)
+VAR = const(1)
 
 # logical
-AND = const(3)
-OR = const(4)
-NOT = const(5)
+AND = const(2)
+OR = const(3)
+NOT = const(4)
 
 # relational
-LT = const(6)
-GT = const(7)
-EQ = const(8)
+LT = const(5)
+GT = const(6)
+EQ = const(7)
 
 # arithmetic
-ADD = const(9)
-SUB = const(10)
-MUL = const(11)
-DIV = const(12)
-MOD = const(13)
+ADD = const(8)
+SUB = const(9)
+MUL = const(10)
+DIV = const(11)
+MOD = const(12)
 
 instr_to_name = {
     CONST: "CONST",
