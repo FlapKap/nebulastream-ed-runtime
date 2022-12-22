@@ -29,9 +29,8 @@ logger.info("config loaded")
 logger.info("loglevel set to {}".format(loglevel))
 
 # set up pipe
-operations = [Map(lambda x: x*2), Map(lambda x: x*-1), Filter(lambda x: x > 0), Map(lambda x: x+1)]
-
-value = 2
+operations = []
+value = None
 
 for op in operations:
     logger.debug("oper: {}, val: {}".format(op,value))

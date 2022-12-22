@@ -1,34 +1,28 @@
 import minipb
-
+import logging
 # schema
-# should correspond to
-# message output_entry_schema {
-#   int key = 1;
-#   bytes value = 2;
-# }
-# message output_entry {
-#   repeated output_entry_schema = 1;
-# }
+# should correspond to schema found in proto/protocol.proto
+
 
 output_entry_schema = (("key", "t"), ("value", "a"),)
 output_schema = (("values", "+[", output_entry_schema, "]"),)
 
-expression_schema = (("instructions", "+z"))
+expression_schema = (('instructions','a'),)
 
-filter_schema = (("predicate", expression_schema))
-map_schema = (("function", expression_schema))
+filter_schema = (("predicate", expression_schema),)
+map_schema = (("function", expression_schema),)
 
-message_types = ((
+message_types = (
     ("map", map_schema),
-    ("filter", filter_schema)
-))
-message_schema = (("message", message_types))
+    ("filter", filter_schema),
+)
 
-__wire_input = minipb.Wire(message_schema)
+__wire_input = minipb.Wire(message_types, loglevel=logging.getLogger().getEffectiveLevel())
 __wire_output = minipb.Wire(output_schema)
 
-def decodeBytes(b: bytes):
-    msg: dict = __wire_input.decode(b)
+def decode_bytes(b):
+    msg= __wire_input.decode(b)
+    print(msg)
     for m in msg["message"]:
         if m is not None:
             return m
