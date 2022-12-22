@@ -111,13 +111,12 @@ class Stack:
             i -= 1
 
 
-class Calculator:
-    def __init__(self, program: bytes, stack_init=None, environment=None):
-        # TODO: program as bytes limit values to 2^8. Should be fixed.
+class Expression:
+    def __init__(self, program: bytes, environment=None):
         self.program = program
         self.pc = 0  # program counter
+        self.stack = Stack()
         self.environment = environment if environment else []
-        self.s = Stack(stack_init)
         self.cases = {
             CONST: self.__const,
             VAR: self.__var,
@@ -133,6 +132,9 @@ class Calculator:
             DIV: self.__div,
             MOD: self.__mod
         }
+
+    def reset(self):
+        self.pc = 0
 
     def __str__(self):
         # create list of instr as string
@@ -150,15 +152,17 @@ class Calculator:
             if inst in (CONST, VAR):
                 instrs.append(str(next(instr_iter)))
         instrs = "[" + ",".join(instrs) + "]"
-        return "Calculator(\n\tpc: {}\n\tprogram: {}\n\tenv: {}\n\t{})".format(self.pc, instrs, self.environment, self.s)
+        return "Calculator(\n\tpc: {}\n\tprogram: {}\n\tenv: {}\n\t{})".format(self.pc, instrs, self.environment, self.stack)
 
-    def execute(self):
+    def __call__(self, *args):
+        self.stack = Stack(args)
+        self.pc = 0
         while self.pc < len(self.program):
             instr = self.program[self.pc]
             self.pc += 1
             self.cases[instr]()
 
-        return self.s.pop()
+        return self.stack.pop()
 
     def __pop_value(self):
         ## pop type of value
@@ -169,49 +173,49 @@ class Calculator:
         value = struct.unpack_from(fmt, self.program, self.pc)[0]
         ## increment pc by length of value
         self.pc += struct.calcsize(fmt)
-        
+
         return value
 
     def __const(self):
         '''push next element from program as data to the stack, and increase program counter'''
-        self.s.push(self.__pop_value())
+        self.stack.push(self.__pop_value())
         self.pc += 1
 
     def __var(self):
         '''read next value from program as key to value in env, and push env value to stack'''
         var_index = self.program[struct.unpack_from("<B",self.program, self.pc)[0]]
-        self.s.push(self.environment[var_index])
+        self.stack.push(self.environment[var_index])
         self.pc += struct.calcsize("<B")
 
     def __and(self):
-        self.s.push(self.s.pop() and self.s.pop())
+        self.stack.push(self.stack.pop() and self.stack.pop())
 
     def __or(self):
-        self.s.push(self.s.pop() or self.s.pop())
+        self.stack.push(self.stack.pop() or self.stack.pop())
 
     def __not(self):
-        self.s.push(not self.s.pop())
+        self.stack.push(not self.stack.pop())
 
     def __lt(self):
-        self.s.push(self.s.pop() < self.s.pop())
+        self.stack.push(self.stack.pop() < self.stack.pop())
 
     def __gt(self):
-        self.s.push(self.s.pop() > self.s.pop())
+        self.stack.push(self.stack.pop() > self.stack.pop())
 
     def __eq(self):
-        self.s.push(self.s.pop() == self.s.pop())
+        self.stack.push(self.stack.pop() == self.stack.pop())
 
     def __add(self):
-        self.s.push(self.s.pop() + self.s.pop())
+        self.stack.push(self.stack.pop() + self.stack.pop())
 
     def __sub(self):
-        self.s.push(self.s.pop() - self.s.pop())
+        self.stack.push(self.stack.pop() - self.stack.pop())
 
     def __mul(self):
-        self.s.push(self.s.pop() * self.s.pop())
+        self.stack.push(self.stack.pop() * self.stack.pop())
 
     def __div(self):
-        self.s.push(self.s.pop() / self.s.pop())
+        self.stack.push(self.stack.pop() / self.stack.pop())
 
     def __mod(self):
-        self.s.push(self.s.pop() % self.s.pop())
+        self.stack.push(self.stack.pop() % self.stack.pop())
