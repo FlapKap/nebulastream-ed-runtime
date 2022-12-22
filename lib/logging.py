@@ -1,15 +1,16 @@
+from micropython import const
+
 import sys
 import time
 
-if hasattr(time, "strftime"):
-    from time import strftime
+CRITICAL = const(50)
+ERROR = const(40)
+WARNING = const(30)
+INFO = const(20)
+DEBUG = const(10)
+NOTSET = const(0)
 
-CRITICAL = 50
-ERROR = 40
-WARNING = 30
-INFO = 20
-DEBUG = 10
-NOTSET = 0
+_DEFAULT_LEVEL = const(WARNING)
 
 _level_dict = {
     CRITICAL: "CRITICAL",
@@ -22,7 +23,6 @@ _level_dict = {
 
 _loggers = {}
 _stream = sys.stderr
-_level = INFO
 _default_fmt = "%(levelname)s:%(name)s:%(message)s"
 _default_datefmt = "%Y-%m-%d %H:%M:%S"
 
@@ -89,7 +89,7 @@ class Formatter:
 
     def formatTime(self, datefmt, record):
         if hasattr(time, "strftime"):
-            return strftime(datefmt, time.localtime(record.ct))
+            return time.strftime(datefmt, time.localtime(record.ct))
         return None
 
     def format(self, record):
@@ -115,7 +115,10 @@ class Logger:
         self.level = level
 
     def isEnabledFor(self, level):
-        return level >= (self.level or _level)
+        return level >= self.getEffectiveLevel()
+
+    def getEffectiveLevel(self):
+        return self.level or getLogger().level or _DEFAULT_LEVEL
 
     def log(self, level, msg, *args):
         if self.isEnabledFor(level):
