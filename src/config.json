@@ -4,5 +4,9 @@
         "deveui":  "0102030405060708",
         "appkey":  "01020304050607080910111213141516"
     },
-    "loglevel": "debug"
+    "loglevel": "debug",
+    "sensors": {
+        "ESP32Temperature": true,
+        "PyTrackGPS": true
+    }
 }

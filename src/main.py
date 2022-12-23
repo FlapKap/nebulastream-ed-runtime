@@ -29,17 +29,18 @@ logger.info("config loaded")
 logger.info("loglevel set to {}".format(loglevel))
 
 # set up pipe
-operations = []
-value = None
+
+stack = Stack([2])
+operations = [Map(Expression(bytes([CONST, INT8, 4, MUL]),stack=stack))]
+
 
 for op in operations:
-    logger.debug("oper: {}, val: {}".format(op,value))
-    value = op(value)
-    if value is None:
-        break
+    logger.debug("oper: {}".format(op))
+    op(stack=stack)
 
 
-print(value)
+
+print(stack)
 logging.shutdown()
 # # set up connection
 
