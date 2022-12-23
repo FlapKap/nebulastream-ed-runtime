@@ -1,8 +1,9 @@
 import minipb
 import logging
+import operators
 # schema
-# should correspond to schema found in proto/protocol.proto
-
+# should correspond to schema found in ../proto/protocol.proto
+# these are placed here instead of in the operation objects, since they all use the expression schema
 
 output_entry_schema = (("key", "t"), ("value", "a"),)
 output_schema = (("values", "+[", output_entry_schema, "]"),)
@@ -12,20 +13,26 @@ expression_schema = (('instructions','a'),)
 filter_schema = (("predicate", expression_schema),)
 map_schema = (("function", expression_schema),)
 
-message_types = (
+operation_types = (
     ("map", map_schema),
     ("filter", filter_schema),
 )
+message_schema = (
+    ("operations", "+[", operation_types, "]")
+)
 
-__wire_input = minipb.Wire(message_types, loglevel=logging.getLogger().getEffectiveLevel())
+__wire_input = minipb.Wire(message_schema, loglevel=logging.getLogger(__name__).getEffectiveLevel())
 __wire_output = minipb.Wire(output_schema)
+
+def has_msg(name, msg):
+    return name in msg.keys() and msg[name] is not None
 
 def decode_bytes(b):
     msg= __wire_input.decode(b)
-    print(msg)
-    for m in msg["message"]:
-        if m is not None:
-            return m
+    if has_msg("map", msg):
+        return operators.Map(**msg["map"])
+    if has_msg("filter", msg):
+        return operators.Filter(**msg["filter"])
     return None
 
 

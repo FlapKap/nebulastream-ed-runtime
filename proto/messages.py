@@ -10,7 +10,7 @@ import betterproto
 class ExpressionTypes(betterproto.Enum):
     """
     types and instructions are taken from expression.pythese are not used
-    generally
+    generally, but are here for reference
     """
 
     INT8 = 0
@@ -69,5 +69,10 @@ class FilterOperation(betterproto.Message):
 
 @dataclass
 class Message(betterproto.Message):
+    operations: List["MessageOperation"] = betterproto.message_field(1)
+
+
+@dataclass
+class MessageOperation(betterproto.Message):
     map: "MapOperation" = betterproto.message_field(1)
     filter: "FilterOperation" = betterproto.message_field(2)

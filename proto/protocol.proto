@@ -23,12 +23,15 @@ message FilterOperation {
 }
 
 message Message {
-    MapOperation map = 1;
-    FilterOperation filter = 2;
+    message Operation {
+        MapOperation map = 1;
+        FilterOperation filter = 2;
+    }
+    repeated Operation operations = 1;
 }
 
 //types and instructions are taken from expression.py
-//these are not used generally
+//these are not used generally, but are here for reference
 enum ExpressionTypes {
     INT8 = 0;
     UINT8 = 1;

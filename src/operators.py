@@ -11,9 +11,9 @@ class Map(Operator):
     def __init__(self, function):
         self.f = function
 
-    def __call__(self, *args):
-        #TODO: move None handling (Result monad) outside
-        return self.f(*args)
+    def __call__(self, *args, **kwargs):
+
+        return self.f(*args, **kwargs)
 
 class Filter(Operator):
     def __init__(self, predicate):
