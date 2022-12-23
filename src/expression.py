@@ -76,6 +76,19 @@ instr_to_name = {
     MOD: "MOD"
 }
 
+type_to_name = {
+    INT8: "INT8",
+    UINT8: "UINT8",
+    INT16: "INT16",
+    UINT16: "UINT16",
+    INT32: "INT32",
+    UINT32: "UINT32",
+    INT64: "INT64",
+    UINT64: "UINT64",
+    FLOAT: "FLOAT",
+    DOUBLE: "DOUBLE"
+}
+
 # might be better in future to make class based on bytearray
 
 
@@ -92,6 +105,9 @@ class Stack:
 
     def __str__(self):
         return "Stack: {}".format(self.l)
+
+    def __repr__(self):
+        return self.__str__()
 
     def peek(self, i=None):
         return self.l[i] if i else self.l[-1]
@@ -111,11 +127,22 @@ class Stack:
             i -= 1
 
 
+def __debug(func):
+    def decorated(self):
+        before = str(self.stack)
+        res = func(self)
+        after = str(self.stack)
+        logger.debug("{} called. Expression state\n{}".format(func, self))
+        return res
+
+    return decorated
+
+
 class Expression:
-    def __init__(self, program: bytes, environment=None):
+    def __init__(self, program: bytes, stack=None, environment=None):
         self.program = program
         self.pc = 0  # program counter
-        self.stack = Stack()
+        self.stack = stack if stack else Stack()
         self.environment = environment if environment else []
         self.cases = {
             CONST: self.__const,
@@ -149,73 +176,95 @@ class Expression:
             instrs.append(instr_str)
 
             # if current instr has data, append that data and advance iter
-            if inst in (CONST, VAR):
-                instrs.append(str(next(instr_iter)))
+            # pretty annoyingly since we enumerate we have to fetch the second element
+            if inst == VAR:
+                instrs.append(str(next(instr_iter)[1]))
+            elif inst == CONST:
+                instrs.append(type_to_name[next(instr_iter)[1]])
+                instrs.append(str(next(instr_iter)[1]))
         instrs = "[" + ",".join(instrs) + "]"
-        return "Calculator(\n\tpc: {}\n\tprogram: {}\n\tenv: {}\n\t{})".format(self.pc, instrs, self.environment, self.stack)
+        return "Expression(\n\tpc: {}\n\tprogram: {}\n\tenv: {}\n\t{})".format(self.pc, instrs, self.environment, self.stack)
 
-    def __call__(self, *args):
-        self.stack = Stack(args)
+    def __call__(self, *args, **kwargs):
+        logger.debug("Map called with: {} {}".format(args, kwargs))
+        self.stack = kwargs["stack"] if "stack" in kwargs.keys() else Stack()
         self.pc = 0
         while self.pc < len(self.program):
             instr = self.program[self.pc]
+            logger.debug("executing instr: {}\n{}".format(
+                instr_to_name[instr], self))
             self.pc += 1
             self.cases[instr]()
 
-        return self.stack.pop()
+        return self.stack.peek()
 
-    def __pop_value(self):
-        ## pop type of value
+    def __pop_instr_value(self):
+        # pop type of value
         typ = self.program[self.pc]
         self.pc += 1
-        ## fetch value
+        # fetch value
         fmt = type_to_fmt[typ]
         value = struct.unpack_from(fmt, self.program, self.pc)[0]
-        ## increment pc by length of value
-        self.pc += struct.calcsize(fmt)
-
+        # increment pc by length of value
+        size = struct.calcsize(fmt)
+        self.pc += size
+        logger.debug("popped instr val: type: {}, fmt: {}, value: {}, size {}".format(
+            type_to_name[typ], fmt, value, size))
         return value
 
+    @__debug
     def __const(self):
         '''push next element from program as data to the stack, and increase program counter'''
-        self.stack.push(self.__pop_value())
-        self.pc += 1
+        self.stack.push(self.__pop_instr_value())
 
+    @__debug
     def __var(self):
         '''read next value from program as key to value in env, and push env value to stack'''
-        var_index = self.program[struct.unpack_from("<B",self.program, self.pc)[0]]
+        var_index = self.program[struct.unpack_from(
+            "<B", self.program, self.pc)[0]]
         self.stack.push(self.environment[var_index])
         self.pc += struct.calcsize("<B")
 
+    @__debug
     def __and(self):
         self.stack.push(self.stack.pop() and self.stack.pop())
 
+    @__debug
     def __or(self):
         self.stack.push(self.stack.pop() or self.stack.pop())
 
+    @__debug
     def __not(self):
         self.stack.push(not self.stack.pop())
 
+    @__debug
     def __lt(self):
         self.stack.push(self.stack.pop() < self.stack.pop())
 
+    @__debug
     def __gt(self):
         self.stack.push(self.stack.pop() > self.stack.pop())
 
+    @__debug
     def __eq(self):
         self.stack.push(self.stack.pop() == self.stack.pop())
 
+    @__debug
     def __add(self):
         self.stack.push(self.stack.pop() + self.stack.pop())
 
+    @__debug
     def __sub(self):
         self.stack.push(self.stack.pop() - self.stack.pop())
 
+    @__debug
     def __mul(self):
         self.stack.push(self.stack.pop() * self.stack.pop())
 
+    @__debug
     def __div(self):
         self.stack.push(self.stack.pop() / self.stack.pop())
 
+    @__debug
     def __mod(self):
         self.stack.push(self.stack.pop() % self.stack.pop())

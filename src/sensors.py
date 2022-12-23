@@ -14,6 +14,14 @@ class ESP32Temperature(Sensor):
     def pull(self) -> float:
         return ((self.machine.temperature() - 32) / 1.8)
 
+class ESP32StackUse(Sensor):
+    def __init__(self):
+        import micropython
+        self.mp = micropython
+    
+    def pull(self):
+        return self.mp.stack_use()
+
 class PyTrackGPS(Sensor):
     def __init__(self):
         from pycoproc_1 import Pycoproc
