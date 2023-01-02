@@ -4,7 +4,7 @@ import json
 import io
 import logging
 import time
-from sensors import ESP32Temperature, PyTrackGPS
+from sensors import Sensors
 from connection import LoRaWAN
 from expression import *
 from operators import *
@@ -28,8 +28,12 @@ logger = logging.getLogger(__name__)
 logger.info("config loaded")
 logger.info("loglevel set to {}".format(loglevel))
 
-# set up pipe
+## set up sensors
+logger.info("initialising sensors...")
+sensors = Sensors(config["sensors"])
+logger.info("{} sensors initialized".format(sensors.sensor_count()))
 
+# set up pipe
 stack = Stack([2])
 operations = [Map(Expression(bytes([CONST, INT8, 4, MUL]),stack=stack))]
 
