@@ -55,7 +55,7 @@ class Sensors:
             elif sens == "ESP32StackUse":
                 sensors.append(ESP32StackUse())
 
-        self.__sensors: list[Sensor] = sensors
+        self.__sensors = sensors
         self.__sensorindex = indexmap
 
     def __iter__(self):

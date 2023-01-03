@@ -43,7 +43,7 @@ logger.debug("environment initialized with first sensor pull: {}".format(reading
 
 logger.info("initialising connection")
 lora = LoRaWAN(lora_config["joineui"], lora_config["appkey"])
-
+lora.connect()
 logger.info("waiting for incoming configuration...")
 msg = lora.recieve_blocking()
 operations = protocol.decode_input_msg(msg)

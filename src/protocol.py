@@ -18,7 +18,7 @@ operation_types = (
     ("filter", filter_schema),
 )
 message_schema = (
-    ("operations", "+[", operation_types, "]")
+    ("operations", "+[", operation_types, "]"),
 )
 
 __wire_input = minipb.Wire(message_schema, loglevel=logging.getLogger(__name__).getEffectiveLevel())
