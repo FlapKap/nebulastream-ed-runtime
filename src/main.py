@@ -8,11 +8,16 @@ from connection import LoRaWAN
 import protocol
 import environment
 import micropython
-
-
+from unittest import unittest
+import tests
 
 # set compilation optimization level
 micropython.opt_level(0) # no optimization. __debug__ = True
+
+if __debug__:
+    unittest.main(tests)
+    import sys
+    sys.exit()
 
 # load config
 config = json.load(io.open("config.json", mode='r'))
