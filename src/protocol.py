@@ -27,13 +27,27 @@ __wire_output = minipb.Wire(output_schema)
 def has_msg(name, msg):
     return name in msg.keys() and msg[name] is not None
 
-def decode_bytes(b):
-    msg= __wire_input.decode(b)
-    if has_msg("map", msg):
-        return operators.Map(**msg["map"])
-    if has_msg("filter", msg):
-        return operators.Filter(**msg["filter"])
-    return None
+def decode_input_msg(b) -> list[operators.Operator]:
+    operations = __wire_input.decode(b)
+    res = []
+    for op in operations:
+        if has_msg("map", op):
+            res.append(operators.Map(**op["map"]))
+        if has_msg("filter", op):
+            res.append(operators.Filter(**op["filter"]))
+    return operations
+
+def encode_output_msg(msg) -> bytes:
+    """_summary_
+    Args:
+        msg (Dict): dict must have key "values" with an array of dicts with
+         keys "key" and "value" where key is int and value is bytes.
+         Example: `{"values": [{"key": 0, "value": b'1'}, {"key": 1, "value", b'a'}]}`
+
+    Returns:
+        bytes: the encoded message
+    """
+    return __wire_output.encode(msg)
 
 
 ## notes - taken from https://github.com/dogtopus/minipb/wiki/Schema-Representations

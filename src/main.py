@@ -1,13 +1,12 @@
 # main.py -- put your code here!
-import socket
 import json
 import io
 import logging
-import time
 from sensors import Sensors
 from connection import LoRaWAN
-from expression import *
-from operators import *
+
+import protocol
+import environment
 import micropython
 
 
@@ -34,23 +33,31 @@ sensors = Sensors(config["sensors"])
 logger.info("{} sensors initialized".format(sensors.sensor_count()))
 
 # set up pipe
-stack = Stack([2])
-operations = [Map(Expression(bytes([CONST, INT8, 4, MUL]),stack=stack))]
+## so far each operation has its own stack
+## set up environment with first pull of sensor data
+readings = [s.pull() for s in sensors]
+environment.replace_environment(readings)
+logger.debug("environment initialized with first sensor pull: {}".format(readings))
+
+# # set up connection
+
+logger.info("initialising connection")
+lora = LoRaWAN(lora_config["joineui"], lora_config["appkey"])
+
+logger.info("waiting for incoming configuration...")
+msg = lora.recieve_blocking()
+operations = protocol.decode_input_msg(msg)
+logger.info("configuration recieved: {} operators".format(len(operations)))
 
 
 for op in operations:
     logger.debug("oper: {}".format(op))
-    op(stack=stack)
+    op()
 
 
 
-print(stack)
 logging.shutdown()
-# # set up connection
 
-# logger.info("initialising connection")
-# lora = LoRaWAN(lora_config["joineui"], lora_config["appkey"])
-# logger.debug("hej")
 
 # calc = Calculator(bytes([CONST, 2, CONST, 3, ADD, CONST, 5, LT]))
 # print(calc.execute())

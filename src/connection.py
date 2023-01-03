@@ -24,7 +24,7 @@ class LoRaWAN:
             # Australia = LoRa.AU915
             # Europe = LoRa.EU868
             # United States = LoRa.US915
-        
+       
         # define lora object
         self.lora = LoRa(mode=LoRa.LORAWAN, region=self.region)
         self._data_waiting = False
@@ -78,5 +78,11 @@ class LoRaWAN:
 
     def receive(self):
         # get any data received (if any...)
-        data = self.sock.recv(64)
+        data = self.sock.recv(256)
+        return data
+
+    def recieve_blocking(self):
+        self.sock.setblocking(True)
+        data = self.sock.recv(256)
+        self.sock.setblocking(False)
         return data

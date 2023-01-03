@@ -1,7 +1,7 @@
 from micropython import const
 import logging
 import struct
-
+import environment
 logger = logging.getLogger(__name__)
 
 # stack-based language
@@ -129,9 +129,9 @@ class Stack:
 
 def __debug(func):
     def decorated(self):
-        before = str(self.stack)
+        #before = str(self.stack)
         res = func(self)
-        after = str(self.stack)
+        #after = str(self.stack)
         logger.debug("{} called. Expression state\n{}".format(func, self))
         return res
 
@@ -139,11 +139,11 @@ def __debug(func):
 
 
 class Expression:
-    def __init__(self, program: bytes, stack=None, environment=None):
+    def __init__(self, program: bytes, stack=None):
         self.program = program
         self.pc = 0  # program counter
         self.stack = stack if stack else Stack()
-        self.environment = environment if environment else []
+        self.environment = environment.get_environment()
         self.cases = {
             CONST: self.__const,
             VAR: self.__var,

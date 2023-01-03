@@ -43,7 +43,7 @@ class Sensors:
     When initialised with a config, which is a list of the names of sensors to start,
     then it can be called
 
-    possible improvement: rewrite to emulate list
+    possible improvement: rewrite to fully emulate list
     """
     def __init__(self, config: list[str]):
         sensors = []
@@ -57,6 +57,15 @@ class Sensors:
 
         self.__sensors: list[Sensor] = sensors
         self.__sensorindex = indexmap
+
+    def __iter__(self):
+        return iter(self.__sensors)
+
+    def __len__(self):
+        return len(self.__sensors)
+
+    def __get_item__(self, i):
+        return self.readSensor(i)
 
     def readSensor(self, e):
         if isinstance(e, int):
