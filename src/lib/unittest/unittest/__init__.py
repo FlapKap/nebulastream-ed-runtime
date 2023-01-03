@@ -49,10 +49,10 @@ class SubtestContext:
             global __test_result__, __current_test__
             test_details = __current_test__
             if self.msg:
-                test_details += (f" [{self.msg}]",)
+                test_details += (" [{}]".format(self.msg),)
             if self.params:
-                detail = ", ".join(f"{k}={v}" for k, v in self.params.items())
-                test_details += (f" ({detail})",)
+                detail = ", ".join("{}={}".format(k,v) for k, v in self.params.items())
+                test_details += (" ({})".format(detail),)
 
             _handle_test_exception(test_details, __test_result__, exc_info, False)
         # Suppress the exception as we've captured it above
@@ -309,7 +309,7 @@ class TestResult:
         for c, e in lst:
             detail = " ".join((str(i) for i in c))
             print("======================================================================")
-            print(f"FAIL: {detail}")
+            print("FAIL: {}".format(detail))
             print(sep)
             print(e)
 
@@ -384,7 +384,7 @@ def _run_suite(c, test_result: TestResult, suite_name=""):
         print("%s (%s) ..." % (name, suite_name), end="")
         set_up()
         __test_result__ = test_result
-        test_container = f"({suite_name})"
+        test_container = "({})".format(suite_name)
         __current_test__ = (name, test_container)
         try:
             test_result._newFailures = 0
