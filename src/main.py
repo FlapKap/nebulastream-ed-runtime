@@ -14,11 +14,6 @@ import tests
 # set compilation optimization level
 micropython.opt_level(0) # no optimization. __debug__ = True
 
-if __debug__:
-    unittest.main(tests)
-    import sys
-    sys.exit()
-
 # load config
 config = json.load(io.open("config.json", mode='r'))
 lora_config = config["lora"]
@@ -31,6 +26,14 @@ logger = logging.getLogger(__name__)
 
 logger.info("config loaded")
 logger.info("loglevel set to {}".format(loglevel))
+
+if __debug__:
+    logger.debug("__debug__ true. Running tests...")
+    unittest.main(tests)
+    import sys
+    sys.exit()
+
+
 
 ## set up sensors
 logger.info("initialising sensors...")
