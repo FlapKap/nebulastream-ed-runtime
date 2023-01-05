@@ -5,24 +5,24 @@ import operators
 # should correspond to schema found in ../proto/protocol.proto
 # these are placed here instead of in the operation objects, since they all use the expression schema
 
-output_entry_schema = (("key", "t"), ("value", "a"),)
-output_schema = (("values", "+[", output_entry_schema, "]"),)
+__output_entry_schema = (("key", "t"), ("value", "a"),)
+__output_schema = (("values", "+[", __output_entry_schema, "]"),)
 
-expression_schema = (('instructions','a'),)
+__expression_schema = (('instructions','a'),)
 
-filter_schema = (("predicate", expression_schema),)
-map_schema = (("function", expression_schema),)
+__filter_schema = (("predicate", __expression_schema),)
+__map_schema = (("function", __expression_schema),)
 
-operation_types = (
-    ("map", map_schema),
-    ("filter", filter_schema),
+__operation_types = (
+    ("map", __map_schema),
+    ("filter", __filter_schema),
 )
-message_schema = (
-    ("operations", "+[", operation_types, "]"),
+__message_schema = (
+    ("operations", "+[", __operation_types, "]"),
 )
 
-__wire_input = minipb.Wire(message_schema, loglevel=logging.getLogger(__name__).getEffectiveLevel())
-__wire_output = minipb.Wire(output_schema)
+__wire_input = minipb.Wire(__message_schema, loglevel=logging.getLogger(__name__).getEffectiveLevel())
+__wire_output = minipb.Wire(__output_schema)
 
 def has_msg(name, msg):
     return name in msg.keys() and msg[name] is not None
