@@ -89,8 +89,10 @@ type_to_name = {
     DOUBLE: "DOUBLE"
 }
 
+
 def pack_type(value_type, value):
-    return struct.pack(type_to_fmt[value_type],value)
+    return struct.pack(type_to_fmt[value_type], value)
+
 
 def __debug(func):
     def decorated(self):
@@ -104,6 +106,14 @@ def __debug(func):
 
 
 class Expression:
+    """
+    Represents a stack-based programmed expression
+    It works on a global stack with access to a global environment.
+    Each instruction acts on the stack, or copies a value from the environment to the stack
+    When the expression is called it is executed and the call returns the topmost element on the stack after execution
+    it leaves the element on the stack
+    """
+
     def __init__(self, program: bytes):
         self.program = program
         self.pc = 0  # program counter
@@ -152,7 +162,13 @@ class Expression:
 
     def __call__(self, *args, **kwargs):
         logger.debug("Map called with: {} {}".format(args, kwargs))
-        self.stack = kwargs["stack"] if "stack" in kwargs.keys() else Stack()
+        self.stack = kwargs["stack"] if "stack" in kwargs.keys(
+        ) else environment.get_stack()
+
+        # if called with arguments, we assume its input that needs to be pushed to the stack before operations start
+        if args is not None:
+            self.stack.push_multiple(args)
+
         self.pc = 0
         while self.pc < len(self.program):
             instr = self.program[self.pc]
