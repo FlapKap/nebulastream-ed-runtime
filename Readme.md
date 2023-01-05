@@ -6,14 +6,16 @@ to support unit-tests the unittest, unittest-discover, argparse and fnmatch from
 
 ## Possible Improvemnts
 
-1. remove global variables
+1. `mod` in python (and possibly micropython) behaves different for negative numbers than C (https://stackoverflow.com/questions/3883004/the-modulo-operation-on-negative-n-5umbers-in-python)
+
+2. remove global variables
    
    Right now stack and environment used for expressions are global. 
 
    This is no problem for single-threaded execution but it is kind of coupled and if later multithreading is needed then it becomes a chore.
 
 
-1. handle sensors that do not produce numerical output
+3. handle sensors that do not produce numerical output
    1. GPS produces tuples of numbers
    2. on/off sensors/buttons?
    3. are there sensors that produces string output?

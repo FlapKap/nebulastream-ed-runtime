@@ -15,7 +15,7 @@ class TestExpression(unittest.TestCase):
         ex = Expression(program)
         ex()
         self.assertEqual(ex.stack.peek(), 12345)
-    
+
     def test_const_nonempty_stack(self):
         environment.get_stack().push(5)
         program = bytes([CONST, INT32]) + pack_type(INT32, 12345)
@@ -27,7 +27,7 @@ class TestExpression(unittest.TestCase):
 
     # region VAR
     def test_var(self):
-        environment.replace_environment([1,2,3.0,4.5])
+        environment.replace_environment([1, 2, 3.0, 4.5])
         program = bytes([VAR, 0, VAR, 1, VAR, 2, VAR, 3])
         ex = Expression(program)
         ex()
@@ -37,7 +37,144 @@ class TestExpression(unittest.TestCase):
         self.assertEqual(ex.stack.pop(), 1)
     # endregion
 
+    # region AND
+    def test_and_11(self):
+        environment.get_stack().push_multiple([1, 1])
+        ex = Expression(bytes([AND]))
+        ex()
+        self.AssertTrue(environment.get_stack().pop())
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_and_10(self):
+        environment.get_stack().push_multiple([1, 0])
+        ex = Expression(bytes([AND]))
+        ex()
+        self.AssertFalse(environment.get_stack().pop())
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_and_01(self):
+        environment.get_stack().push_multiple([0, 1])
+        ex = Expression(bytes([AND]))
+        ex()
+        self.AssertFalse(environment.get_stack().pop())
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_and_00(self):
+        environment.get_stack().push_multiple([0, 0])
+        ex = Expression(bytes([AND]))
+        ex()
+        self.AssertFalse(environment.get_stack().pop())
+        self.assertEqual(len(environment.get_stack()), 0)
+    # endregion
+
+    # region OR
+    def test_or_11(self):
+        environment.get_stack().push_multiple([1, 1])
+        ex = Expression(bytes([OR]))
+        ex()
+        self.AssertTrue(environment.get_stack().pop())
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_or_10(self):
+        environment.get_stack().push_multiple([1, 0])
+        ex = Expression(bytes([OR]))
+        ex()
+        self.AssertTrue(environment.get_stack().pop())
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_or_01(self):
+        environment.get_stack().push_multiple([0, 1])
+        ex = Expression(bytes([OR]))
+        ex()
+        self.AssertTrue(environment.get_stack().pop())
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_or_00(self):
+        environment.get_stack().push_multiple([0, 0])
+        ex = Expression(bytes([OR]))
+        ex()
+        self.AssertFalse(environment.get_stack().pop())
+        self.assertEqual(len(environment.get_stack()), 0)
+    # endregion
+
+    # region NOT
+    def test_not_true(self):
+        environment.get_stack().push(1)
+        ex = Expression(bytes([NOT]))
+        ex()
+        self.AssertFalse(environment.get_stack().pop())
+
+    def test_not_false(self):
+        environment.get_stack().push(0)
+        ex = Expression(bytes([NOT]))
+        ex()
+        self.AssertTrue(environment.get_stack().pop())
+    # endregion
+
+    # region LT
+    def test_lt_true(self):
+        environment.get_stack().push_multiple([20, 10])
+        ex = Expression(bytes([LT]))
+        ex()
+        self.assertTrue()
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_lt_false(self):
+        environment.get_stack().push_multiple([10, 20])
+        ex = Expression(bytes([LT]))
+        ex()
+        self.assertFalse()
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_lt_equal_false(self):
+        environment.get_stack().push_multiple([20, 20])
+        ex = Expression(bytes([LT]))
+        ex()
+        self.assertTrue()
+        self.assertEqual(len(environment.get_stack()), 0)
+    # endregion
+
+    # region GT
+    def test_gt_true(self):
+        environment.get_stack().push_multiple([10, 20])
+        ex = Expression(bytes([GT]))
+        ex()
+        self.assertTrue()
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_gt_false(self):
+        environment.get_stack().push_multiple([20, 10])
+        ex = Expression(bytes([GT]))
+        ex()
+        self.assertFalse()
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_gt_equal_false(self):
+        environment.get_stack().push_multiple([20, 20])
+        ex = Expression(bytes([GT]))
+        ex()
+        self.assertTrue()
+        self.assertEqual(len(environment.get_stack()), 0)
+    # endregion
+
+    # region EQ
+    def test_eq_true(self):
+        environment.get_stack().push_multiple([20, 20])
+        ex = Expression(bytes([EQ]))
+        ex()
+        self.assertTrue()
+        self.assertEqual(len(environment.get_stack()), 0)
+
+    def test_eq_false(self):
+        environment.get_stack().push_multiple([21, 20])
+        ex = Expression(bytes([EQ]))
+        ex()
+        self.assertFalse()
+        self.assertEqual(len(environment.get_stack()), 0)
+    # endregion
+
     # region ADD
+
     def test_add_int_identity(self):
         environment.get_stack().push_multiple([1, 0])
         ex = Expression(bytes([ADD]))
@@ -161,7 +298,7 @@ class TestExpression(unittest.TestCase):
         ex = Expression(bytes([MUL]))
         ex()
         self.assertEqual(ex.stack.peek(), 2)
-    
+
     def test_mul_float_identity(self):
         environment.get_stack().push_multiple([2.0, 1.0])
         ex = Expression(bytes([MUL]))
@@ -246,8 +383,33 @@ class TestExpression(unittest.TestCase):
         environment.get_stack().push_multiple([1, 0])
         ex = Expression(bytes([DIV]))
         with self.assertRaises(ZeroDivisionError):
-            ex() # TODO: is this actually the handling we want?
+            ex()  # TODO: is this actually the handling we want?
     # endregion
 
-    def hej(self):
-        pass
+    # region MOD
+    def test_mod_int_0(self):
+        environment.get_stack().push_multiple([10, 0])
+        ex = Expression(bytes([MOD]))
+        with self.assertRaises(ZeroDivisionError):
+            ex()  # TODO: is this actually the handling we want?
+
+    def test_mod_int_1(self):
+        environment.get_stack().push_multiple([10, 1])
+        ex = Expression(bytes([MOD]))
+        ex()
+        self.assertEqual(ex.stack.pop(), 0)
+
+    def test_mod_int_self(self):
+        environment.get_stack().push_multiple([10, 10])
+        ex = Expression(bytes([MOD]))
+        ex()
+        self.assertEqual(ex.stack.pop(), 0)
+
+    def test_mod_int_positive(self):
+        environment.get_stack().push_multiple([10, 3])
+        ex = Expression(bytes([MOD]))
+        ex()
+        self.assertEqual(ex.stack.pop(), 1)
+
+    # TODO: mod with negative quotient behave different in python than in C. Do we wish to replicate C behaviour?
+    # endregion
