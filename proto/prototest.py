@@ -2,12 +2,34 @@ from messages import *
 from messages import ExpressionInstructions as Einstr
 from messages import ExpressionTypes as Etype
 
+# This file is used to generate the binary protobuf messages that are used for testing
+# the protocol implementation in ../src/protocol.py
+
 if __name__ == "__main__":
-    msg =Message([
-        MessageOperation(map=MapOperation(
-            Expression(bytes([Einstr.CONST, Etype.INT8,3,Einstr.CONST, Etype.INT8,9,Einstr.ADD]))
-            )), MessageOperation(filter=FilterOperation()
-            ]
-            )
-            
-    print(msg.SerializeToString())
+    # generate messages
+    empty_msg = Message(operations=[])
+
+    map_msg = Message(operations=[MessageOperation(map=MapOperation(
+        Expression(instructions=bytes([Einstr.CONST, Etype.INT32, 8, Einstr.MUL]))))])
+
+    filter_msg = Message(operations=[MessageOperation(filter=FilterOperation(
+        predicate=Expression(instructions=bytes([Einstr.CONST, Etype.INT8, 8, Einstr.LT]))))])
+
+    map_filter_msg = Message(operations=[MessageOperation(map=MapOperation(
+        Expression(instructions=bytes([Einstr.CONST, Etype.INT32, 8, Einstr.MUL])))),
+        MessageOperation(filter=FilterOperation(predicate=Expression(instructions=bytes([Einstr.CONST, Etype.INT16, 50, Einstr.GT]))))])
+
+    print("empty_msg")
+    print(empty_msg.SerializeToString())
+    print(empty_msg.to_dict())
+    print()
+    print("map_msg")
+    print(map_msg.SerializeToString())
+    print(map_msg.to_dict())
+    print("filter_msg")
+    print(filter_msg.SerializeToString())
+    print(filter_msg.to_dict())
+    print()
+    print("map_filter_msg")
+    print(map_filter_msg.SerializeToString())
+    print(map_filter_msg.to_dict())
