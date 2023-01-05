@@ -36,7 +36,7 @@ class LoRaWAN:
         self.lora.callback(trigger=LoRa.RX_PACKET_EVENT, handler=handler)
 
     @property
-    def get_data_waiting(self):
+    def data_waiting(self):
         return self._data_waiting
 
     def connect(self):
