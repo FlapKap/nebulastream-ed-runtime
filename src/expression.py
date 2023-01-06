@@ -41,7 +41,7 @@ type_to_fmt = {
 # data
 # these indicate that the next value in the instrlist is a value
 CONST = const(0)
-VAR = const(1)
+VAR = const(13)
 
 # logical
 AND = const(2)
@@ -155,13 +155,17 @@ class Expression:
             if inst == VAR:
                 instrs.append(str(next(instr_iter)[1]))
             elif inst == CONST:
-                instrs.append(type_to_name[next(instr_iter)[1]])
-                instrs.append(str(next(instr_iter)[1]))
+                value, size, typ, fmt = self.__read_instr_value()
+                instrs.append(type_to_name[typ])
+                instrs.append(value)
+                # advance iterator by type + size
+                for i in range(0, size+1):
+                    next(instr_iter)
         instrs = "[" + ",".join(instrs) + "]"
         return "Expression(\n\tpc: {}\n\tprogram: {}\n\tenv: {}\n\t{})".format(self.pc, instrs, self.environment, self.stack)
 
     def __call__(self, *args, **kwargs):
-        logger.debug("Map called with: {} {}".format(args, kwargs))
+        logger.debug("Expression called with: {} {}".format(args, kwargs))
         self.stack = kwargs["stack"] if "stack" in kwargs.keys(
         ) else environment.get_stack()
 
@@ -172,47 +176,51 @@ class Expression:
         self.pc = 0
         while self.pc < len(self.program):
             instr = self.program[self.pc]
-            logger.debug("executing instr: {}\n{}".format(
-                instr_to_name[instr], self))
+            #logger.debug("executing instr: {}\n{}".format(instr_to_name[instr], self))
             self.pc += 1
             self.cases[instr]()
 
         return self.stack.peek()
 
+    def __read_instr_value(self):
+        # assume current pc is type
+        typ = self.program[self.pc]
+        fmt = type_to_fmt[typ]
+        size = struct.calcsize(fmt)
+        value = struct.unpack_from(fmt, self.program, self.pc + 1)[0]
+        return value, size, typ, fmt
+
     def __pop_instr_value(self):
         # pop type of value
-        typ = self.program[self.pc]
-        self.pc += 1
-        # fetch value
-        fmt = type_to_fmt[typ]
-        value = struct.unpack_from(fmt, self.program, self.pc)[0]
-        # increment pc by length of value
-        size = struct.calcsize(fmt)
-        self.pc += size
+        value, size, typ, fmt = self.__read_instr_value()
+
+        self.pc += size + 1
         logger.debug("popped instr val: type: {}, fmt: {}, value: {}, size {}".format(
             type_to_name[typ], fmt, value, size))
         return value
 
-    @__debug
+    #@__debug
     def __const(self):
         '''push next element from program as data to the stack, and increase program counter'''
         self.stack.push(self.__pop_instr_value())
 
-    @__debug
+    # @__debug
     def __var(self):
         '''read next value from program as key to value in env, and push env value to stack'''
-        var_index = self.program[struct.unpack_from(
-            "<B", self.program, self.pc)[0]]
+        var_index = struct.unpack_from(
+            "<B", self.program, self.pc)[0]
+        self.pc += 1
         self.stack.push(self.environment[var_index])
-        self.pc += struct.calcsize("<B")
 
     @__debug
     def __and(self):
-        self.stack.push(self.stack.pop() and self.stack.pop())
+        # & doesn't short circuit
+        self.stack.push(self.stack.pop() & self.stack.pop())
 
     @__debug
     def __or(self):
-        self.stack.push(self.stack.pop() or self.stack.pop())
+        # | doesn't short circuit
+        self.stack.push(self.stack.pop() | self.stack.pop())
 
     @__debug
     def __not(self):

@@ -27,8 +27,8 @@ logger = logging.getLogger(__name__)
 logger.info("config loaded")
 logger.info("loglevel set to {}".format(loglevel))
 
-if __debug__:
-    logger.debug("__debug__ true. Running tests...")
+if config["run_test"]:
+    logger.info("test true. Running tests...")
     unittest.main(tests)
     import sys
     sys.exit()

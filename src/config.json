@@ -4,6 +4,7 @@
         "deveui":  "0102030405060708",
         "appkey":  "01020304050607080910111213141516"
     },
-    "loglevel": "debug",
+    "loglevel": "info",
+    "run_test":true,
     "sensors": ["ESP32Temperature", "ESP32StackUse"]
 }
