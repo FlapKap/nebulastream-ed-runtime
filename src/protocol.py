@@ -12,7 +12,7 @@ __expression_schema = (('instructions','a'),)
 
 __filter_schema = (("predicate", __expression_schema),)
 __map_schema = (("function", __expression_schema),)
-__window_schema= (("size", "t"),("size_type","t"), ("agg_type","t"),)
+__window_schema= (("size", "t"),("sizeType","t"), ("aggType","t"),)
 
 #This is supposed to be a oneof, but the minipb doesnt seem to be able to enforce that
 __operation_types = (

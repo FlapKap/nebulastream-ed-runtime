@@ -19,6 +19,9 @@ if __name__ == "__main__":
         Expression(instructions=bytes([Einstr.CONST, Etype.INT32, 8, Einstr.MUL])))),
         MessageOperation(filter=FilterOperation(predicate=Expression(instructions=bytes([Einstr.CONST, Etype.INT16, 50, Einstr.GT]))))])
 
+    window_msg = Message(operations=[
+        MessageOperation(window=WindowOperation(3,WindowSizeType.COUNTBASED,agg_type=WindowAggregationType.COUNT))
+    ])
     print("empty_msg")
     print(empty_msg.SerializeToString())
     print(empty_msg.to_dict())
@@ -33,3 +36,7 @@ if __name__ == "__main__":
     print("map_filter_msg")
     print(map_filter_msg.SerializeToString())
     print(map_filter_msg.to_dict())
+    print()
+    print("window_msg")
+    print(window_msg.SerializeToString())
+    print(window_msg.to_dict())
