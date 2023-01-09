@@ -52,6 +52,7 @@ operations = protocol.decode_input_msg(msg)
 logger.info("configuration recieved: {} operators".format(len(operations)))
 
 logger.info("Starting main loop")
+# The main loop is probably better off being in its own module/class for testability
 while True:
     # set up pipe
     ## set up environment with first pull of sensor data
