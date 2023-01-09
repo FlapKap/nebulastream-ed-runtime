@@ -13,6 +13,7 @@ __expression_schema = (('instructions','a'),)
 __filter_schema = (("predicate", __expression_schema),)
 __map_schema = (("function", __expression_schema),)
 
+#This is supposed to be a oneof, but the minipb doesnt seem to be able to enforce that
 __operation_types = (
     ("map", __map_schema),
     ("filter", __filter_schema),
@@ -25,7 +26,7 @@ __wire_input = minipb.Wire(__message_schema, loglevel=logging.getLogger(__name__
 __wire_output = minipb.Wire(__output_schema)
 
 def has_msg(name, msg):
-    return name in msg.keys() and msg[name] is not None
+    return msg is dict and name in msg.keys() and msg[name] is not None
 
 def decode_input_msg(b) -> list[operators.Operator]:
     operations = __wire_input.decode(b)
