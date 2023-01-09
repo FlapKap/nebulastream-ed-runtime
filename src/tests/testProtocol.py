@@ -17,7 +17,7 @@ class TestProtocol(unittest.TestCase):
         msg = protocol.decode_input_msg(raw_msg)
 
         expected = {'operations':
-                    ({'map': {'function': {'instructions': bytes([CONST, INT32, 8, MUL])}}, 'filter': None},)}
+                    ({'map': {'function': {'instructions': bytes([CONST, INT32, 8, MUL])}}, 'filter': None, 'window':None},)}
         self.assertEqual(msg, expected)
 
     def test_filter_msg(self):
@@ -25,7 +25,7 @@ class TestProtocol(unittest.TestCase):
         msg = protocol.decode_input_msg(raw_msg)
 
         expected = {'operations':
-                    ({'map': None, 'filter': {'predicate': {'instructions': bytes([CONST, INT8, 8, LT])}}},)}
+                    ({'map': None,'window':None, 'filter': {'predicate': {'instructions': bytes([CONST, INT8, 8, LT])}}},)}
         self.assertEqual(msg, expected)
 
     def test_filter_map_msg(self):
@@ -33,7 +33,7 @@ class TestProtocol(unittest.TestCase):
         msg = protocol.decode_input_msg(raw_msg)
 
         expected = {'operations': (
-            {'filter': None, 'map': {'function': {
+            {'filter': None, 'window':None, 'map': {'function': {
                 'instructions': bytes([CONST, INT32, 8, MUL])}}},
-            {'map': None, 'filter': {'predicate': {'instructions': bytes([CONST, INT16, 50, GT])}}})}
+            {'map': None, 'window':None, 'filter': {'predicate': {'instructions': bytes([CONST, INT16, 50, GT])}}})}
         self.assertEqual(msg, expected)

@@ -1,8 +1,6 @@
 from unittest import unittest
 from expression import *
 import environment
-import logging
-
 
 
 
