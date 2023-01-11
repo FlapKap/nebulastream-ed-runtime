@@ -1,57 +1,223 @@
 from unittest import unittest
 from operators import *
-
+import environment
 
 class TestOperators(unittest.TestCase):
 
+    def setUp(self):
+        environment.clear_environment()
+        environment.clear_stack()
+
     def test_map_operator(self):
-        op = Map(lambda x: x)
-        self.assertEqual(op(3), 3)
+        #environment.set_value(0, 3)
+        expected = 3
+        op = Map(lambda : expected, 0)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(0), expected)
+
+    #TODO: make test that actually test if map reads/writes
 
     def test_filter_operator_true(self):
-        op = Filter(lambda x: x == 3)
-        self.assertEqual(op(3), 3)
+        op = Filter(lambda : True)
+        self.assertTrue(op())
 
     def test_filter_operator_false(self):
-        op = Filter(lambda x: x == 3)
-        self.assertFalse(op(2))
+        op = Filter(lambda : False)
+        self.assertFalse(op())
 
+    # region window
+    # for window operators we need to test that they
+    # return true only when a window is finished
+    # that 
     def test_window_tumbling_min(self):
+        start = 0
+        end = 1
+        result = 2
+        read = 3
+
         op = TumblingWindow(WindowSizeType.COUNTBASED,
-                            WindowAggregationType.MIN, 3)
-        self.assertEqual(op(3), 3)
-        self.assertEqual(op(4), 3)
-        self.assertEqual(op(2), 2)
-        self.assertEqual(op(5), 5)  # we go into next window
+                            WindowAggregationType.MIN, 3,start,end,result,read)
+        environment.set_value(read, 3)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 4)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 2)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(result), 2)
+        self.assertEqual(environment.get_value(start), 0)
+        self.assertEqual(environment.get_value(end), 2)
+
+        environment.set_value(read, 5)
+        self.assertFalse(op())  # we go into next window
+
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 10)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 8)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(result), 5)
+        environment.set_value(read, 5)
+        self.assertFalse(op())  # we go into next window
 
     def test_window_tumbling_max(self):
+        start = 0
+        end = 1
+        result = 2
+        read = 3
+
         op = TumblingWindow(WindowSizeType.COUNTBASED,
-                            WindowAggregationType.MAX, 3)
-        self.assertEqual(op(3), 3)
-        self.assertEqual(op(4), 4)
-        self.assertEqual(op(2), 4)
-        self.assertEqual(op(3), 3)  # we go into next window
+                            WindowAggregationType.MAX, 3,start,end,result,read)
+        environment.set_value(read, 3)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 4)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 2)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(result), 4)
+        self.assertEqual(environment.get_value(start), 0)
+        self.assertEqual(environment.get_value(end), 2)
+        
+        environment.set_value(read, 5)
+        self.assertFalse(op())  # we go into next window
+
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 10)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 8)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(result), 10)
+        environment.set_value(read, 5)
+        self.assertFalse(op())  # we go into next window
+
 
     def test_window_tumbling_sum(self):
+        start = 0
+        end = 1
+        result = 2
+        read = 3
+
         op = TumblingWindow(WindowSizeType.COUNTBASED,
-                            WindowAggregationType.SUM, 3)
-        self.assertEqual(op(1), 1)
-        self.assertEqual(op(2), 3)
-        self.assertEqual(op(3), 6)
-        self.assertEqual(op(4), 4)  # we go into next window
+                            WindowAggregationType.SUM, 3,start,end,result,read)
+        environment.set_value(read, 3)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 4)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 2)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(result), 9)
+        self.assertEqual(environment.get_value(start), 0)
+        self.assertEqual(environment.get_value(end), 2)
+        
+        environment.set_value(read, 5)
+        self.assertFalse(op())  # we go into next window
+
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 10)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 8)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(result), 23)
+        environment.set_value(read, 5)
+        self.assertFalse(op())  # we go into next window
 
     def test_window_tumbling_avg(self):
+        start = 0
+        end = 1
+        result = 2
+        read = 3
+
         op = TumblingWindow(WindowSizeType.COUNTBASED,
-                            WindowAggregationType.AVG, 3)
-        self.assertEqual(op(3), 3)
-        self.assertEqual(op(4), 3.5)
-        self.assertEqual(op(14), 7)
-        self.assertEqual(op(3), 3)  # we go into next window
+                            WindowAggregationType.AVG, 3,start,end,result,read)
+        environment.set_value(read, 3)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 4)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 14)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(result), 7)
+        self.assertEqual(environment.get_value(start), 0)
+        self.assertEqual(environment.get_value(end), 2)
+        
+        environment.set_value(read, 5)
+        self.assertFalse(op())  # we go into next window
+
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 10)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 0)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(result), 5)
+        environment.set_value(read, 5)
+        self.assertFalse(op())  # we go into next window
+
 
     def test_window_tumbling_count(self):
+        start = 0
+        end = 1
+        result = 2
+        read = 3
+
         op = TumblingWindow(WindowSizeType.COUNTBASED,
-                            WindowAggregationType.COUNT, 3)
-        self.assertEqual(op(3), 1)
-        self.assertEqual(op(4), 2)
-        self.assertEqual(op(14), 3)
-        self.assertEqual(op(3), 1)  # we go into next window
+                            WindowAggregationType.COUNT, 3,start,end,result,read)
+        environment.set_value(read, 3)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 4)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 2)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(result), 3)
+        self.assertEqual(environment.get_value(start), 0)
+        self.assertEqual(environment.get_value(end), 2)
+        
+        environment.set_value(read, 5)
+        self.assertFalse(op())  # we go into next window
+
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 10)
+        self.assertFalse(op())
+        self.assertEqual(environment.get_value(result), None)
+
+        environment.set_value(read, 8)
+        self.assertTrue(op())
+        self.assertEqual(environment.get_value(result), 3)
+        environment.set_value(read, 5)
+        self.assertFalse(op())  # we go into next window
+    #     op = TumblingWindow(WindowSizeType.COUNTBASED,
+    #                         WindowAggregationType.COUNT, 3)
+    #     self.assertEqual(op(3), 1)
+    #     self.assertEqual(op(4), 2)
+    #     self.assertEqual(op(14), 3)
+    #     self.assertEqual(op(3), 1)  # we go into next window

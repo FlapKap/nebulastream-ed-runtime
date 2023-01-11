@@ -49,6 +49,7 @@ message Expression {
 
 message MapOperation {
     Expression function = 1;
+    int32 attribute = 2;
 }
 
 message FilterOperation {
@@ -70,8 +71,12 @@ enum WindowSizeType {
 
 message WindowOperation {
     int32 size = 1;
-    WindowSizeType size_type = 2;
-    WindowAggregationType agg_type = 3;
+    WindowSizeType sizeType = 2;
+    WindowAggregationType aggType = 3;
+    int32 startAttribute = 4;
+    int32 endAttribute = 5;
+    int32 resultAttribute = 6;
+    int32 readAttribute = 7;
 }
 
 message Message {

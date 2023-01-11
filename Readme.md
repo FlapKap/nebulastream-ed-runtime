@@ -21,6 +21,8 @@ to support unit-tests the unittest, unittest-discover, argparse and fnmatch from
    3. are there sensors that produces string output?
    4. spectrums produce rows or matrices of numbers
 
+4. what are start/end in countbased windows?
+
 ### Error Handling
 how do we handle
 
