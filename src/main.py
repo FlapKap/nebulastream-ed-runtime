@@ -66,7 +66,9 @@ while True:
         ## however cleaning the stack every time makes it a bit easier to reason about
         environment.clear_stack()
         logger.debug("oper: {} called with input: {}".format(op, res))
-        op()
+        res = op()
+        if not res:
+            break #break if operator returns false
     
     #transmit result if any
     logger.debug("Checking if result needs to be transmitted")
