@@ -61,8 +61,7 @@ class Output(betterproto.Message):
 
 @dataclass
 class OutputEntry(betterproto.Message):
-    key: int = betterproto.int32_field(1)
-    value: bytes = betterproto.bytes_field(2)
+    value: bytes = betterproto.bytes_field(1)
 
 
 @dataclass
@@ -73,6 +72,7 @@ class Expression(betterproto.Message):
 @dataclass
 class MapOperation(betterproto.Message):
     function: "Expression" = betterproto.message_field(1)
+    attribute: int = betterproto.int32_field(2)
 
 
 @dataclass
@@ -85,6 +85,10 @@ class WindowOperation(betterproto.Message):
     size: int = betterproto.int32_field(1)
     size_type: "WindowSizeType" = betterproto.enum_field(2)
     agg_type: "WindowAggregationType" = betterproto.enum_field(3)
+    start_attribute: int = betterproto.int32_field(4)
+    end_attribute: int = betterproto.int32_field(5)
+    result_attribute: int = betterproto.int32_field(6)
+    read_attribute: int = betterproto.int32_field(7)
 
 
 @dataclass

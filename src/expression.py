@@ -138,6 +138,16 @@ class Expression:
     def reset(self):
         self.pc = 0
 
+    def __eq__(self, __o):
+        if isinstance(__o, Expression):
+            return (
+                self.program == __o.program and
+                self.pc == __o.pc and
+                self.stack == __o.stack and
+                self.environment == __o.environment
+            )
+        return False
+
     def __str__(self):
         # create list of instr as string
         instrs = []
@@ -157,7 +167,7 @@ class Expression:
             elif inst == CONST:
                 value, size, typ, fmt = self.__read_instr_value()
                 instrs.append(type_to_name[typ])
-                instrs.append(value)
+                instrs.append(str(value))
                 # advance iterator by type + size
                 for i in range(0, size+1):
                     next(instr_iter)
@@ -199,7 +209,7 @@ class Expression:
             type_to_name[typ], fmt, value, size))
         return value
 
-    #@__debug
+    # @__debug
     def __const(self):
         '''push next element from program as data to the stack, and increase program counter'''
         self.stack.push(self.__pop_instr_value())

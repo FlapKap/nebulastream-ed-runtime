@@ -215,9 +215,4 @@ class TestOperators(unittest.TestCase):
         self.assertEqual(environment.get_value(result), 3)
         environment.set_value(read, 5)
         self.assertFalse(op())  # we go into next window
-    #     op = TumblingWindow(WindowSizeType.COUNTBASED,
-    #                         WindowAggregationType.COUNT, 3)
-    #     self.assertEqual(op(3), 1)
-    #     self.assertEqual(op(4), 2)
-    #     self.assertEqual(op(14), 3)
-    #     self.assertEqual(op(3), 1)  # we go into next window
+    # endregion

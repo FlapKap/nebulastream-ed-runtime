@@ -1,14 +1,22 @@
 import logging
 logger = logging.getLogger(__name__)
 # might be better in future to make class based on bytearray
+
+
 class Stack:
     """
     A simple implementation of a stack. Supports the usual collection operators
     Iterates, and indexes, from oldest to newest.
     """
+
     def __init__(self, iterable=None):
         logger.debug("Initialise Stack with iterable {}".format(iterable))
         self.l = list(iterable) if iterable else []
+
+    def __eq__(self, __o):
+        if isinstance(__o, Stack):
+            return self.l == __o.l
+        return False
 
     def __len__(self):
         return len(self.l)

@@ -1,20 +1,29 @@
 import minipb
 import logging
 import operators
+from expression import Expression
 # schema
 # should correspond to schema found in ../proto/protocol.proto
 # these are placed here instead of in the operation objects, since they all use the expression schema
 
-__output_entry_schema = (("key", "t"), ("value", "a"),)
+__output_entry_schema = (("value", "a"),)
 __output_schema = (("values", "+[", __output_entry_schema, "]"),)
 
-__expression_schema = (('instructions','a'),)
+__expression_schema = (('instructions', 'a'),)
 
 __filter_schema = (("predicate", __expression_schema),)
 __map_schema = (("function", __expression_schema),)
-__window_schema= (("size", "t"),("sizeType","t"), ("aggType","t"),)
+__window_schema = (
+    ("size", "t"),
+    ("sizeType", "t"),
+    ("aggregationType", "t"),
+    ("startAttribute", "t"),
+    ("endAttribute", "t"),
+    ("resultAttribute", "t"),
+    ("readAttribute", "t"),)
 
-#This is supposed to be a oneof, but the minipb doesnt seem to be able to enforce that
+
+# This is supposed to be a oneof, but the minipb doesnt seem to be able to enforce that
 __operation_types = (
     ("map", __map_schema),
     ("filter", __filter_schema),
@@ -24,28 +33,45 @@ __message_schema = (
     ("operations", "+[", __operation_types, "]"),
 )
 
-__wire_input = minipb.Wire(__message_schema, loglevel=logging.getLogger(__name__).getEffectiveLevel())
+__wire_input = minipb.Wire(
+    __message_schema, loglevel=logging.getLogger(__name__).getEffectiveLevel())
 __wire_output = minipb.Wire(__output_schema)
 
+
 def has_msg(name, msg):
-    return msg is dict and name in msg.keys() and msg[name] is not None
+    return isinstance(msg, dict) and name in msg.keys() and msg[name] is not None
+
 
 def decode_input_msg(b) -> list[operators.Operator]:
-    operations = __wire_input.decode(b)
+    operations = __wire_input.decode(b)["operations"]
     res = []
     for op in operations:
         if has_msg("map", op):
-            res.append(operators.Map(**op["map"]))
+            opmap = op['map']
+            if 'attribute' not in opmap.keys() or opmap['attribute'] is None:
+                opmap['attribute'] = 0
+
+            res.append(operators.Map(Expression(
+                opmap['function']['instructions']), opmap['attribute']))
+
         if has_msg("filter", op):
-            res.append(operators.Filter(**op["filter"]))
-    return operations
+            res.append(operators.Filter(Expression(op['filter']['predicate']['instructions'])))
+        
+        if has_msg("window", op):
+            opwindow = op['window']
+            for k, v in opwindow.items():
+                if k in ("startAttribute", "endAttribute", "resultAttribute", "readAttribute") and v is None:
+                    opwindow[k] = 0
+            res.append(operators.TumblingWindow(**opwindow))
+    return res
+
 
 def encode_output_msg(msg) -> bytes:
     """_summary_
     Args:
         msg (Dict): dict must have key "values" with an array of dicts with
-         keys "key" and "value" where key is int and value is bytes.
-         Example: `{"values": [{"key": 0, "value": b'1'}, {"key": 1, "value", b'a'}]}`
+         "value" where  value is bytes.
+         Example: `{"values": [{"value": b'1'}, {"value", b'a'}]}`
 
     Returns:
         bytes: the encoded message
@@ -53,7 +79,7 @@ def encode_output_msg(msg) -> bytes:
     return __wire_output.encode(msg)
 
 
-## notes - taken from https://github.com/dogtopus/minipb/wiki/Schema-Representations
+# notes - taken from https://github.com/dogtopus/minipb/wiki/Schema-Representations
 # Table of data types
 # | Type | Protobuf type  | Python type | Comments                                        |
 # |------|----------------|-------------|-------------------------------------------------|
