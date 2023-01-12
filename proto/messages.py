@@ -56,12 +56,12 @@ class WindowSizeType(betterproto.Enum):
 
 @dataclass
 class Output(betterproto.Message):
-    values: List["OutputEntry"] = betterproto.message_field(1)
+    responses: List["OutputQueryResponse"] = betterproto.message_field(1)
 
 
 @dataclass
-class OutputEntry(betterproto.Message):
-    value: bytes = betterproto.bytes_field(1)
+class OutputQueryResponse(betterproto.Message):
+    response: List[bytes] = betterproto.bytes_field(1)
 
 
 @dataclass
@@ -84,7 +84,7 @@ class FilterOperation(betterproto.Message):
 class WindowOperation(betterproto.Message):
     size: int = betterproto.int32_field(1)
     size_type: "WindowSizeType" = betterproto.enum_field(2)
-    agg_type: "WindowAggregationType" = betterproto.enum_field(3)
+    aggregation_type: "WindowAggregationType" = betterproto.enum_field(3)
     start_attribute: int = betterproto.int32_field(4)
     end_attribute: int = betterproto.int32_field(5)
     result_attribute: int = betterproto.int32_field(6)
@@ -92,12 +92,17 @@ class WindowOperation(betterproto.Message):
 
 
 @dataclass
-class Message(betterproto.Message):
-    operations: List["MessageOperation"] = betterproto.message_field(1)
+class Query(betterproto.Message):
+    operations: List["QueryOperation"] = betterproto.message_field(1)
 
 
 @dataclass
-class MessageOperation(betterproto.Message):
+class QueryOperation(betterproto.Message):
     map: "MapOperation" = betterproto.message_field(1)
     filter: "FilterOperation" = betterproto.message_field(2)
     window: "WindowOperation" = betterproto.message_field(3)
+
+
+@dataclass
+class Message(betterproto.Message):
+    queries: List["Query"] = betterproto.message_field(1)

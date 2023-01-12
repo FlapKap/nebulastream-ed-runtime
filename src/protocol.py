@@ -6,8 +6,8 @@ from expression import Expression
 # should correspond to schema found in ../proto/protocol.proto
 # these are placed here instead of in the operation objects, since they all use the expression schema
 
-__output_entry_schema = (("value", "a"),)
-__output_schema = (("values", "+[", __output_entry_schema, "]"),)
+__output_query_response_schema = (("response", "+a"),)
+__output_schema = (("responses", "+[", __output_query_response_schema, "]"),)
 
 __expression_schema = (('instructions', 'a'),)
 
@@ -29,8 +29,13 @@ __operation_types = (
     ("filter", __filter_schema),
     ("window", __window_schema),
 )
+
+__query_schema = (
+    ("operations", "+[", __operation_types ,"]"),
+)
+
 __message_schema = (
-    ("operations", "+[", __operation_types, "]"),
+    ("queries", "+[", __query_schema, "]"),
 )
 
 __wire_input = minipb.Wire(
@@ -38,32 +43,36 @@ __wire_input = minipb.Wire(
 __wire_output = minipb.Wire(__output_schema)
 
 
-def has_msg(name, msg):
+def has_msg(name, msg) -> bool:
     return isinstance(msg, dict) and name in msg.keys() and msg[name] is not None
 
 
-def decode_input_msg(b) -> list[operators.Operator]:
-    operations = __wire_input.decode(b)["operations"]
-    res = []
-    for op in operations:
-        if has_msg("map", op):
-            opmap = op['map']
-            if 'attribute' not in opmap.keys() or opmap['attribute'] is None:
-                opmap['attribute'] = 0
+def decode_input_msg(b) -> list[list[operators.Operator]]:
+    queries_raw = __wire_input.decode(b)["queries"]
+    queries = []
+    for operations_raw in queries_raw:
+        query = []
+        for op_raw in operations_raw["operations"]:
+            if has_msg("map", op_raw):
+                opmap = op_raw['map']
+                if 'attribute' not in opmap.keys() or opmap['attribute'] is None:
+                    opmap['attribute'] = 0
 
-            res.append(operators.Map(Expression(
-                opmap['function']['instructions']), opmap['attribute']))
+                query.append(operators.Map(Expression(
+                    opmap['function']['instructions']), opmap['attribute']))
 
-        if has_msg("filter", op):
-            res.append(operators.Filter(Expression(op['filter']['predicate']['instructions'])))
-        
-        if has_msg("window", op):
-            opwindow = op['window']
-            for k, v in opwindow.items():
-                if k in ("startAttribute", "endAttribute", "resultAttribute", "readAttribute") and v is None:
-                    opwindow[k] = 0
-            res.append(operators.TumblingWindow(**opwindow))
-    return res
+            if has_msg("filter", op_raw):
+                query.append(operators.Filter(Expression(op_raw['filter']['predicate']['instructions'])))
+            
+            if has_msg("window", op_raw):
+                opwindow = op_raw['window']
+                for k, v in opwindow.items():
+                    if k in ("startAttribute", "endAttribute", "resultAttribute", "readAttribute") and v is None:
+                        opwindow[k] = 0
+                query.append(operators.TumblingWindow(**opwindow))
+        queries.append(query)
+    
+    return queries
 
 
 def encode_output_msg(msg) -> bytes:

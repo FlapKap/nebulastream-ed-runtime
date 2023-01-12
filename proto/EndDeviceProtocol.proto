@@ -36,10 +36,10 @@ enum ExpressionInstructions {
 // endregion
 
 message Output {
-    message Entry {
-        bytes value = 1;
+    message QueryResponse {
+        repeated bytes response = 1;
     }
-    repeated Entry values = 1;
+    repeated QueryResponse responses = 1;
 }
 
 message Expression {
@@ -78,11 +78,15 @@ message WindowOperation {
     int32 readAttribute = 7;
 }
 
-message Message {
+message Query {
     message Operation {
         MapOperation map = 1;
         FilterOperation filter = 2;
         WindowOperation window = 3;
     }
     repeated Operation operations = 1;
+}
+
+message Message {
+    repeated Query queries = 1;
 }
