@@ -22,7 +22,7 @@ class ESP32StackUse(Sensor):
         import micropython
         self.mp = micropython
 
-    def pull(self):
+    def pull(self) -> int:
         return self.mp.stack_use()
 
 

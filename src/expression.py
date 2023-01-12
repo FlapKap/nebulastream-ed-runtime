@@ -90,7 +90,7 @@ type_to_name = {
 }
 
 
-def pack_type(value_type, value):
+def pack_type(value_type, value) -> bytes:
     return struct.pack(type_to_fmt[value_type], value)
 
 
@@ -138,7 +138,7 @@ class Expression:
     def reset(self):
         self.pc = 0
 
-    def __eq__(self, __o):
+    def __eq__(self, __o) -> bool:
         if isinstance(__o, Expression):
             return (
                 self.program == __o.program and
@@ -148,7 +148,7 @@ class Expression:
             )
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         # create list of instr as string
         instrs = []
         instr_iter = enumerate(self.program)
