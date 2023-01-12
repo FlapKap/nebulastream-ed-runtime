@@ -16,10 +16,10 @@ def clear_environment():
 def get_environment():
     return __env
 
-def get_value(i):
+def get_env_value(i):
     return __env[i] if len(__env) > i else None
 
-def set_value(i, val):
+def set_env_value(i, val):
     dif = i-(len(__env)-1)
     if dif > 0:
         __env.extend([None]*dif)

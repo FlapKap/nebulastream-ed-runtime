@@ -18,7 +18,7 @@ class Map(Operator):
         self.attribute = attribute
 
     def __call__(self):
-        environment.set_value(self.attribute, self.f())
+        environment.set_env_value(self.attribute, self.f())
         return True
 
     def __eq__(self, __o):
@@ -107,7 +107,7 @@ class TumblingWindow(Operator):
     # These functions handle the agg computation itself
 
     def __min(self):
-        value = environment.get_value(self.__read_attribute)
+        value = environment.get_env_value(self.__read_attribute)
 
         if "running_min" not in self.__state:
             self.__state["running_min"] = value
@@ -117,7 +117,7 @@ class TumblingWindow(Operator):
             return self.__state["running_min"]
 
     def __max(self):
-        value = environment.get_value(self.__read_attribute)
+        value = environment.get_env_value(self.__read_attribute)
 
         if "running_max" not in self.__state:
             self.__state["running_max"] = value
@@ -127,7 +127,7 @@ class TumblingWindow(Operator):
         return self.__state["running_max"]
 
     def __sum(self):
-        value = environment.get_value(self.__read_attribute)
+        value = environment.get_env_value(self.__read_attribute)
         if "running_sum" not in self.__state:
             self.__state["running_sum"] = value
         else:
@@ -136,12 +136,12 @@ class TumblingWindow(Operator):
 
     def __avg(self):
         if "running_sum" not in self.__state:
-            self.__state["running_sum"] = environment.get_value(
+            self.__state["running_sum"] = environment.get_env_value(
                 self.__read_attribute)
         if "running_count" not in self.__state:
             self.__state["running_count"] = 1
         else:
-            self.__state["running_sum"] += environment.get_value(
+            self.__state["running_sum"] += environment.get_env_value(
                 self.__read_attribute)
             self.__state["running_count"] += 1
         return self.__state["running_sum"] / self.__state["running_count"]
@@ -156,7 +156,7 @@ class TumblingWindow(Operator):
         output = False
 
         # make sure result is not set
-        environment.set_value(self.__result_attribute, None)
+        environment.set_env_value(self.__result_attribute, None)
 
         # run function
         res = self.__f()
@@ -169,10 +169,10 @@ class TumblingWindow(Operator):
         # we reach end of window when we have done something (call count is not zero)
         # and we we have run for size times
         if self.__call_count != 0 and self.__call_count % self.__size == self.__size - 1:
-            environment.set_value(self.__result_attribute, res)
-            environment.set_value(self.__start_attribute,
+            environment.set_env_value(self.__result_attribute, res)
+            environment.set_env_value(self.__start_attribute,
                                   self.__call_count - (self.__size-1))
-            environment.set_value(self.__end_attribute,
+            environment.set_env_value(self.__end_attribute,
                                   self.__call_count)
             # reset state
             self.__state = {}

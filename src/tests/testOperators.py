@@ -9,11 +9,11 @@ class TestOperators(unittest.TestCase):
         environment.clear_stack()
 
     def test_map_operator(self):
-        #environment.set_value(0, 3)
+        #environment.set_env_value(0, 3)
         expected = 3
         op = Map(lambda : expected, 0)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(0), expected)
+        self.assertEqual(environment.get_env_value(0), expected)
 
     #TODO: make test that actually test if map reads/writes
 
@@ -37,33 +37,33 @@ class TestOperators(unittest.TestCase):
 
         op = TumblingWindow(WindowSizeType.COUNTBASED,
                             WindowAggregationType.MIN, 3,start,end,result,read)
-        environment.set_value(read, 3)
+        environment.set_env_value(read, 3)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 4)
+        environment.set_env_value(read, 4)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 2)
+        environment.set_env_value(read, 2)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(result), 2)
-        self.assertEqual(environment.get_value(start), 0)
-        self.assertEqual(environment.get_value(end), 2)
+        self.assertEqual(environment.get_env_value(result), 2)
+        self.assertEqual(environment.get_env_value(start), 0)
+        self.assertEqual(environment.get_env_value(end), 2)
 
-        environment.set_value(read, 5)
+        environment.set_env_value(read, 5)
         self.assertFalse(op())  # we go into next window
 
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 10)
+        environment.set_env_value(read, 10)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 8)
+        environment.set_env_value(read, 8)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(result), 5)
-        environment.set_value(read, 5)
+        self.assertEqual(environment.get_env_value(result), 5)
+        environment.set_env_value(read, 5)
         self.assertFalse(op())  # we go into next window
 
     def test_window_tumbling_max(self):
@@ -74,33 +74,33 @@ class TestOperators(unittest.TestCase):
 
         op = TumblingWindow(WindowSizeType.COUNTBASED,
                             WindowAggregationType.MAX, 3,start,end,result,read)
-        environment.set_value(read, 3)
+        environment.set_env_value(read, 3)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 4)
+        environment.set_env_value(read, 4)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 2)
+        environment.set_env_value(read, 2)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(result), 4)
-        self.assertEqual(environment.get_value(start), 0)
-        self.assertEqual(environment.get_value(end), 2)
+        self.assertEqual(environment.get_env_value(result), 4)
+        self.assertEqual(environment.get_env_value(start), 0)
+        self.assertEqual(environment.get_env_value(end), 2)
         
-        environment.set_value(read, 5)
+        environment.set_env_value(read, 5)
         self.assertFalse(op())  # we go into next window
 
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 10)
+        environment.set_env_value(read, 10)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 8)
+        environment.set_env_value(read, 8)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(result), 10)
-        environment.set_value(read, 5)
+        self.assertEqual(environment.get_env_value(result), 10)
+        environment.set_env_value(read, 5)
         self.assertFalse(op())  # we go into next window
 
 
@@ -112,33 +112,33 @@ class TestOperators(unittest.TestCase):
 
         op = TumblingWindow(WindowSizeType.COUNTBASED,
                             WindowAggregationType.SUM, 3,start,end,result,read)
-        environment.set_value(read, 3)
+        environment.set_env_value(read, 3)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 4)
+        environment.set_env_value(read, 4)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 2)
+        environment.set_env_value(read, 2)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(result), 9)
-        self.assertEqual(environment.get_value(start), 0)
-        self.assertEqual(environment.get_value(end), 2)
+        self.assertEqual(environment.get_env_value(result), 9)
+        self.assertEqual(environment.get_env_value(start), 0)
+        self.assertEqual(environment.get_env_value(end), 2)
         
-        environment.set_value(read, 5)
+        environment.set_env_value(read, 5)
         self.assertFalse(op())  # we go into next window
 
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 10)
+        environment.set_env_value(read, 10)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 8)
+        environment.set_env_value(read, 8)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(result), 23)
-        environment.set_value(read, 5)
+        self.assertEqual(environment.get_env_value(result), 23)
+        environment.set_env_value(read, 5)
         self.assertFalse(op())  # we go into next window
 
     def test_window_tumbling_avg(self):
@@ -149,33 +149,33 @@ class TestOperators(unittest.TestCase):
 
         op = TumblingWindow(WindowSizeType.COUNTBASED,
                             WindowAggregationType.AVG, 3,start,end,result,read)
-        environment.set_value(read, 3)
+        environment.set_env_value(read, 3)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 4)
+        environment.set_env_value(read, 4)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 14)
+        environment.set_env_value(read, 14)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(result), 7)
-        self.assertEqual(environment.get_value(start), 0)
-        self.assertEqual(environment.get_value(end), 2)
+        self.assertEqual(environment.get_env_value(result), 7)
+        self.assertEqual(environment.get_env_value(start), 0)
+        self.assertEqual(environment.get_env_value(end), 2)
         
-        environment.set_value(read, 5)
+        environment.set_env_value(read, 5)
         self.assertFalse(op())  # we go into next window
 
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 10)
+        environment.set_env_value(read, 10)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 0)
+        environment.set_env_value(read, 0)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(result), 5)
-        environment.set_value(read, 5)
+        self.assertEqual(environment.get_env_value(result), 5)
+        environment.set_env_value(read, 5)
         self.assertFalse(op())  # we go into next window
 
 
@@ -187,32 +187,32 @@ class TestOperators(unittest.TestCase):
 
         op = TumblingWindow(WindowSizeType.COUNTBASED,
                             WindowAggregationType.COUNT, 3,start,end,result,read)
-        environment.set_value(read, 3)
+        environment.set_env_value(read, 3)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 4)
+        environment.set_env_value(read, 4)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 2)
+        environment.set_env_value(read, 2)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(result), 3)
-        self.assertEqual(environment.get_value(start), 0)
-        self.assertEqual(environment.get_value(end), 2)
+        self.assertEqual(environment.get_env_value(result), 3)
+        self.assertEqual(environment.get_env_value(start), 0)
+        self.assertEqual(environment.get_env_value(end), 2)
         
-        environment.set_value(read, 5)
+        environment.set_env_value(read, 5)
         self.assertFalse(op())  # we go into next window
 
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 10)
+        environment.set_env_value(read, 10)
         self.assertFalse(op())
-        self.assertEqual(environment.get_value(result), None)
+        self.assertEqual(environment.get_env_value(result), None)
 
-        environment.set_value(read, 8)
+        environment.set_env_value(read, 8)
         self.assertTrue(op())
-        self.assertEqual(environment.get_value(result), 3)
-        environment.set_value(read, 5)
+        self.assertEqual(environment.get_env_value(result), 3)
+        environment.set_env_value(read, 5)
         self.assertFalse(op())  # we go into next window
     # endregion
