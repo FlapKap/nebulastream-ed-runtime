@@ -2,10 +2,7 @@ syntax = "proto3";
 
 package messages;
 
-// region expression enums
-//types and instructions are taken from expression.py
-//these are not used generally, but are here for reference
-enum ExpressionTypes {
+enum DataTypes {
     INT8 = 0;
     UINT8 = 1;
     INT16 = 2;
@@ -33,11 +30,11 @@ enum ExpressionInstructions {
     DIV = 11;
     MOD = 12;
 }
-// endregion
 
 message Output {
     message QueryResponse {
-        repeated bytes response = 1;
+        int32 id = 1;
+        repeated bytes response = 2;
     }
     repeated QueryResponse responses = 1;
 }
@@ -84,7 +81,9 @@ message Query {
         FilterOperation filter = 2;
         WindowOperation window = 3;
     }
-    repeated Operation operations = 1;
+    bytes resultType = 1; //For some reason minipb breaks if I make this a repeated enum or int32
+    repeated Operation operations = 2;
+    
 }
 
 message Message {

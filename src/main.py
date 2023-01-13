@@ -7,8 +7,10 @@ from connection import LoRaWAN
 
 import protocol
 import environment
+import execution
 import micropython
 from unittest import unittest
+from datatypes import pack_array
 import tests
 
 # set compilation optimization level
@@ -48,35 +50,37 @@ lora = LoRaWAN(lora_config["joineui"], lora_config["appkey"])
 lora.connect()
 logger.info("waiting for incoming configuration...")
 msg = lora.recieve_blocking()
-operations = protocol.decode_input_msg(msg)
-logger.info("configuration recieved: {} operators".format(len(operations)))
+queries = protocol.decode_input_msg(msg)
+logger.info("configuration recieved: {} operators".format(len(queries)))
 
 logger.info("Starting main loop")
 # The main loop is probably better off being in its own module/class for testability
 while True:
     # set up pipe
     ## set up environment with first pull of sensor data
-    environment.replace_environment([s.pull() for s in sensors])
-    logger.debug("environment initialized with sensor pull: {}".format(environment.get_environment()))
-    
-    res = None
-    for op in operations:
-        ## so far each operation gets its own stack
-        ## TODO: this can probably be optimized away. Output of previous stack is input to next
-        ## however cleaning the stack every time makes it a bit easier to reason about
-        environment.clear_stack()
-        logger.debug("oper: {} called with input: {}".format(op, res))
-        res = op()
-        if not res:
-            break #break if operator returns false
+    sensor_readings = [s.pull() for s in sensors]
+    query_responses = execution.execute_queries(queries, sensor_readings)
     
     #transmit result if any
     logger.debug("Checking if result needs to be transmitted")
-    if res is not None:
-        ##TODO: first we only assume a single value
-        logger.debug("Transmitting result: {}".format(res))
-        output_msg = protocol.encode_output_msg({"values": [{"key":0, "value":res}]})
-        lora.send(output_msg)
+    if all(map(lambda x: x is None or len(x) == 0, query_responses)):
+        logger.debug("no queries with responses. Not transmitting anything")
+        continue
+
+    #gather results that needs to be transmitted
+    responses = []
+    for i, (query,resp) in enumerate(query_responses):
+        #skip the empty ones
+        if resp is None or len(resp) == 0:
+            continue
+        
+        responses.append({"id": i, "response": pack_array(query.resultType,resp)})
+        
+
+    ##TODO: first we only assume a single value
+    logger.debug("Transmitting result: {}".format(responses))
+    output_msg = protocol.encode_output_msg({"responses":responses})
+    lora.send(output_msg)
 
     #check if new messages are waiting
     if lora.data_waiting:
@@ -84,8 +88,8 @@ while True:
         # that combines connection and protocol
         logger.info("Data Waiting. Loading new configuration")
         msg = lora.recieve_blocking()
-        operations = protocol.decode_input_msg(msg)
-        logger.info("configuration recieved: {} operators".format(len(operations)))
+        queries = protocol.decode_input_msg(msg)
+        logger.info("configuration recieved: {} operators".format(len(queries)))
     
 
 logging.shutdown()

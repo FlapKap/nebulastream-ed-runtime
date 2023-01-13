@@ -2,17 +2,18 @@ import minipb
 import logging
 import operators
 from expression import Expression
+import datatypes
 # schema
 # should correspond to schema found in ../proto/protocol.proto
 # these are placed here instead of in the operation objects, since they all use the expression schema
 
-__output_query_response_schema = (("response", "+a"),)
-__output_schema = (("responses", "+[", __output_query_response_schema, "]"),)
+__output_query_response_schema = (("id","t"),("response", "+a"),)
+__output_queryresponses_schema = (("responses", "+[", __output_query_response_schema, "]"),)
 
 __expression_schema = (('instructions', 'a'),)
 
 __filter_schema = (("predicate", __expression_schema),)
-__map_schema = (("function", __expression_schema),)
+__map_schema = (("function", __expression_schema),("attribute","t"),)
 __window_schema = (
     ("size", "t"),
     ("sizeType", "t"),
@@ -31,6 +32,7 @@ __operation_types = (
 )
 
 __query_schema = (
+    ("resultType", "a"),
     ("operations", "+[", __operation_types ,"]"),
 )
 
@@ -40,37 +42,37 @@ __message_schema = (
 
 __wire_input = minipb.Wire(
     __message_schema, loglevel=logging.getLogger(__name__).getEffectiveLevel())
-__wire_output = minipb.Wire(__output_schema)
+__wire_output = minipb.Wire(__output_queryresponses_schema)
 
 
 def has_msg(name, msg) -> bool:
     return isinstance(msg, dict) and name in msg.keys() and msg[name] is not None
 
-
-def decode_input_msg(b) -> list[list[operators.Operator]]:
+def decode_input_msg(b) -> list[operators.Query]:
     queries_raw = __wire_input.decode(b)["queries"]
     queries = []
     for operations_raw in queries_raw:
-        query = []
+        operations = []
+        resultType = datatypes.unpack_array_fixed_type(datatypes.INT8, operations_raw["resultType"]) if operations_raw["resultType"] is not None else None
         for op_raw in operations_raw["operations"]:
             if has_msg("map", op_raw):
                 opmap = op_raw['map']
                 if 'attribute' not in opmap.keys() or opmap['attribute'] is None:
                     opmap['attribute'] = 0
 
-                query.append(operators.Map(Expression(
+                operations.append(operators.Map(Expression(
                     opmap['function']['instructions']), opmap['attribute']))
 
             if has_msg("filter", op_raw):
-                query.append(operators.Filter(Expression(op_raw['filter']['predicate']['instructions'])))
+                operations.append(operators.Filter(Expression(op_raw['filter']['predicate']['instructions'])))
             
             if has_msg("window", op_raw):
                 opwindow = op_raw['window']
                 for k, v in opwindow.items():
                     if k in ("startAttribute", "endAttribute", "resultAttribute", "readAttribute") and v is None:
                         opwindow[k] = 0
-                query.append(operators.TumblingWindow(**opwindow))
-        queries.append(query)
+                operations.append(operators.TumblingWindow(**opwindow))
+        queries.append(operators.Query(operations, resultType))
     
     return queries
 

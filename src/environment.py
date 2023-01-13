@@ -5,7 +5,7 @@ __env = []
 # Our global stack
 __stack = Stack()
 
-def replace_environment(new_env) -> None:
+def set_environment(new_env) -> None:
     global __env
     __env = new_env
 
@@ -15,6 +15,12 @@ def clear_environment() -> None:
 
 def get_environment() -> list:
     return __env
+
+def get_environment_copy() -> list:
+    """
+    returns shallow copy of the environment
+    """
+    return __env.copy()
 
 def get_env_value(i):
     return __env[i] if len(__env) > i else None

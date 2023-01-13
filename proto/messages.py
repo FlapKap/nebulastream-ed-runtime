@@ -7,12 +7,7 @@ from typing import List
 import betterproto
 
 
-class ExpressionTypes(betterproto.Enum):
-    """
-    region expression enumstypes and instructions are taken from
-    expression.pythese are not used generally, but are here for reference
-    """
-
+class DataTypes(betterproto.Enum):
     INT8 = 0
     UINT8 = 1
     INT16 = 2
@@ -61,7 +56,8 @@ class Output(betterproto.Message):
 
 @dataclass
 class OutputQueryResponse(betterproto.Message):
-    response: List[bytes] = betterproto.bytes_field(1)
+    id: int = betterproto.int32_field(1)
+    response: List[bytes] = betterproto.bytes_field(2)
 
 
 @dataclass
@@ -93,7 +89,8 @@ class WindowOperation(betterproto.Message):
 
 @dataclass
 class Query(betterproto.Message):
-    operations: List["QueryOperation"] = betterproto.message_field(1)
+    result_type: List[int] = betterproto.int32_field(1)
+    operations: List["QueryOperation"] = betterproto.message_field(2)
 
 
 @dataclass

@@ -2,6 +2,7 @@ from micropython import const
 import logging
 import struct
 import environment
+import datatypes
 logger = logging.getLogger(__name__)
 
 # stack-based language
@@ -11,32 +12,7 @@ logger = logging.getLogger(__name__)
 # VAR: is followed by a uint8 value.
 # it is assumed values from sensors are placed in the environement at an index corresponding to their id
 
-# types
-# maybe relevant if we want to represent the stack as a byte array for optimization purposes
-# then we need to know the size of each type
-INT8 = const(0)
-UINT8 = const(1)
-INT16 = const(2)
-UINT16 = const(3)
-INT32 = const(4)
-UINT32 = const(5)
-INT64 = const(6)
-UINT64 = const(7)
-FLOAT = const(8)
-DOUBLE = const(9)
 
-type_to_fmt = {
-    INT8: "<b",
-    UINT8: "<B",
-    INT16: "<h",
-    UINT16: "<H",
-    INT32: "<i",
-    UINT32: "<I",
-    INT64: "<q",
-    UINT64: "<Q",
-    FLOAT: "<f",
-    DOUBLE: "<d"
-}
 # instructions
 # data
 # these indicate that the next value in the instrlist is a value
@@ -75,23 +51,6 @@ instr_to_name = {
     DIV: "DIV",
     MOD: "MOD"
 }
-
-type_to_name = {
-    INT8: "INT8",
-    UINT8: "UINT8",
-    INT16: "INT16",
-    UINT16: "UINT16",
-    INT32: "INT32",
-    UINT32: "UINT32",
-    INT64: "INT64",
-    UINT64: "UINT64",
-    FLOAT: "FLOAT",
-    DOUBLE: "DOUBLE"
-}
-
-
-def pack_type(value_type, value) -> bytes:
-    return struct.pack(type_to_fmt[value_type], value)
 
 
 def __debug(func):
@@ -166,7 +125,7 @@ class Expression:
                 instrs.append(str(next(instr_iter)[1]))
             elif inst == CONST:
                 value, size, typ, fmt = self.__read_instr_value()
-                instrs.append(type_to_name[typ])
+                instrs.append(datatypes.type_to_name[typ])
                 instrs.append(str(value))
                 # advance iterator by type + size
                 for i in range(0, size+1):
@@ -195,7 +154,7 @@ class Expression:
     def __read_instr_value(self):
         # assume current pc is type
         typ = self.program[self.pc]
-        fmt = type_to_fmt[typ]
+        fmt = datatypes.type_to_fmt[typ]
         size = struct.calcsize(fmt)
         value = struct.unpack_from(fmt, self.program, self.pc + 1)[0]
         return value, size, typ, fmt
@@ -206,7 +165,7 @@ class Expression:
 
         self.pc += size + 1
         logger.debug("popped instr val: type: {}, fmt: {}, value: {}, size {}".format(
-            type_to_name[typ], fmt, value, size))
+            datatypes.type_to_name[typ], fmt, value, size))
         return value
 
     # @__debug

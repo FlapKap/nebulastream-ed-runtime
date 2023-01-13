@@ -1,7 +1,7 @@
 from unittest import unittest
 from expression import *
 import environment
-
+from datatypes import *
 
 
 class TestExpression(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestExpression(unittest.TestCase):
 
     # region VAR
     def test_var(self):
-        environment.replace_environment([1, 2, 3.0, 4.5])
+        environment.set_environment([1, 2, 3.0, 4.5])
         program = bytes([VAR, 0, VAR, 1, VAR, 2, VAR, 3])
         ex = Expression(program)
         ex()

@@ -1,6 +1,8 @@
+from ucollections import namedtuple
 from micropython import const
 import environment
 
+Query = namedtuple("Query", ("operations","resultType"))
 
 class Operator:
 
