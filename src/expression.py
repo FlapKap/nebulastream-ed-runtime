@@ -124,7 +124,7 @@ class Expression:
             if inst == VAR:
                 instrs.append(str(next(instr_iter)[1]))
             elif inst == CONST:
-                value, size, typ, fmt = self.__read_instr_value()
+                value, size, typ, fmt = self.__read_instr_value(i)
                 instrs.append(datatypes.type_to_name[typ])
                 instrs.append(str(value))
                 # advance iterator by type + size
@@ -135,8 +135,7 @@ class Expression:
 
     def __call__(self, *args, **kwargs):
         logger.debug("Expression called with: {} {}".format(args, kwargs))
-        self.stack = kwargs["stack"] if "stack" in kwargs.keys(
-        ) else environment.get_stack()
+        self.stack = kwargs["stack"] if "stack" in kwargs.keys() else environment.get_stack()
 
         # if called with arguments, we assume its input that needs to be pushed to the stack before operations start
         if args is not None:
@@ -151,12 +150,13 @@ class Expression:
 
         return self.stack.peek()
 
-    def __read_instr_value(self):
+    def __read_instr_value(self, i=None):
         # assume current pc is type
-        typ = self.program[self.pc]
+        index = i if i is not None else self.pc
+        typ = self.program[index]
         fmt = datatypes.type_to_fmt[typ]
         size = struct.calcsize(fmt)
-        value = struct.unpack_from(fmt, self.program, self.pc + 1)[0]
+        value = struct.unpack_from(fmt, self.program, index + 1)[0]
         return value, size, typ, fmt
 
     def __pop_instr_value(self):
