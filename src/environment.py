@@ -1,4 +1,8 @@
 from stack import Stack
+import logging
+
+__logger = logging.getLogger(__name__)
+
 # Our global env
 __env = []
 
@@ -10,6 +14,7 @@ def set_environment(new_env) -> None:
     __env = new_env
 
 def clear_environment() -> None:
+    __logger.debug("clear_env called")
     global __env
     __env = []
 
@@ -26,6 +31,7 @@ def get_env_value(i):
     return __env[i] if len(__env) > i else None
 
 def set_env_value(i, val) -> None:
+    __logger.debug("set_env_value( {}, {})".format(i, val))
     dif = i-(len(__env)-1)
     if dif > 0:
         __env.extend([None]*dif)

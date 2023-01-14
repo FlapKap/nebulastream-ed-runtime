@@ -12,16 +12,16 @@ def _execute_query(query: operators.Query):
         environment.clear_stack()
         cont = op()
         if not cont:
-            return []
+            return None
 
     return environment.get_environment_copy()
 
-def execute_queries(queries: list[operators.Query], env)-> list[tuple[operators.Query,list]]:
+def execute_queries(queries: list[operators.Query], env)-> list[list]:
     output = []
     for query in queries:
         logger.debug("environment initialized with: {}".format(env))
         environment.set_environment(env.copy())
         result = _execute_query(query)
-        output.append((query,result))
+        output.append(result)
 
     return output
