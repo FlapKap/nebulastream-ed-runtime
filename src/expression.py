@@ -77,7 +77,6 @@ class Expression:
         self.program = program
         self.pc = 0  # program counter
         self.stack = environment.get_stack()
-        self.environment = environment.get_environment()
         self.cases = {
             CONST: self.__const,
             VAR: self.__var,
@@ -102,8 +101,7 @@ class Expression:
             return (
                 self.program == __o.program and
                 self.pc == __o.pc and
-                self.stack == __o.stack and
-                self.environment == __o.environment
+                self.stack == __o.stack
             )
         return False
 
@@ -131,7 +129,7 @@ class Expression:
                 for i in range(0, size+1):
                     next(instr_iter)
         instrs = "[" + ",".join(instrs) + "]"
-        return "Expression(\n\tpc: {}\n\tprogram: {}\n\tenv: {}\n\t{})".format(self.pc, instrs, self.environment, self.stack)
+        return "Expression(\n\tpc: {}\n\tprogram: {}\n\t{})".format(self.pc, instrs, self.stack)
 
     def __call__(self, *args, **kwargs):
         logger.debug("Expression called with: {} {}".format(args, kwargs))
@@ -179,7 +177,7 @@ class Expression:
         var_index = struct.unpack_from(
             "<B", self.program, self.pc)[0]
         self.pc += 1
-        self.stack.push(self.environment[var_index])
+        self.stack.push(environment.get_env_value(var_index))
 
     @__debug
     def __and(self):
