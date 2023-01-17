@@ -89,7 +89,7 @@ class WindowOperation(betterproto.Message):
 
 @dataclass
 class Query(betterproto.Message):
-    result_type: List[int] = betterproto.int32_field(1)
+    result_type: bytes = betterproto.bytes_field(1)
     operations: List["QueryOperation"] = betterproto.message_field(2)
 
 
