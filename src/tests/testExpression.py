@@ -114,14 +114,14 @@ class TestExpression(unittest.TestCase):
 
     # region LT
     def test_lt_true(self):
-        environment.get_stack().push_multiple([20, 10])
+        environment.get_stack().push_multiple([10, 20])
         ex = Expression(bytes([LT]))
         res = ex()
         self.assertTrue(res)
         self.assertEqual(len(environment.get_stack()), 1)
 
     def test_lt_false(self):
-        environment.get_stack().push_multiple([10, 20])
+        environment.get_stack().push_multiple([20, 10])
         ex = Expression(bytes([LT]))
         res = ex()
         self.assertFalse(res)
@@ -137,14 +137,14 @@ class TestExpression(unittest.TestCase):
 
     # region GT
     def test_gt_true(self):
-        environment.get_stack().push_multiple([10, 20])
+        environment.get_stack().push_multiple([20, 10])
         ex = Expression(bytes([GT]))
         res = ex()
         self.assertTrue(res)
         self.assertEqual(len(environment.get_stack()), 1)
 
     def test_gt_false(self):
-        environment.get_stack().push_multiple([20, 10])
+        environment.get_stack().push_multiple([10, 20])
         ex = Expression(bytes([GT]))
         res = ex()
         self.assertFalse(res)
@@ -233,7 +233,7 @@ class TestExpression(unittest.TestCase):
 
     # region SUB
     def test_sub_int_identity(self):
-        environment.get_stack().push_multiple([0, 1])
+        environment.get_stack().push_multiple([1, 0])
         ex = Expression(bytes([SUB]))
         ex()
         self.assertEqual(ex.stack.peek(), 1)
@@ -245,25 +245,25 @@ class TestExpression(unittest.TestCase):
         self.assertEqual(ex.stack.peek(), 0)
 
     def test_sub_int_positive(self):
-        environment.get_stack().push_multiple([3, 2])
+        environment.get_stack().push_multiple([2, 3])
         ex = Expression(bytes([SUB]))
         ex()
         self.assertEqual(ex.stack.peek(), -1)
 
     def test_sub_int_negative(self):
-        environment.get_stack().push_multiple([3, -2])
+        environment.get_stack().push_multiple([-2, 3])
         ex = Expression(bytes([SUB]))
         ex()
         self.assertEqual(ex.stack.peek(), -5)
 
     def test_sub_int_double_negative(self):
-        environment.get_stack().push_multiple([-3, -2])
+        environment.get_stack().push_multiple([-2, -3])
         ex = Expression(bytes([SUB]))
         ex()
         self.assertEqual(ex.stack.peek(), 1)
 
     def test_sub_float_identity(self):
-        environment.get_stack().push_multiple([0.0, 1.0])
+        environment.get_stack().push_multiple([1.0, 0.0])
         ex = Expression(bytes([SUB]))
         ex()
         self.assertAlmostEqual(ex.stack.peek(), 1.0, delta=0.001)
@@ -275,19 +275,19 @@ class TestExpression(unittest.TestCase):
         self.assertAlmostEqual(ex.stack.peek(), 0.0, delta=0.001)
 
     def test_sub_float_positive(self):
-        environment.get_stack().push_multiple([2.5, 1.5])
+        environment.get_stack().push_multiple([1.5, 2.5])
         ex = Expression(bytes([SUB]))
         ex()
         self.assertAlmostEqual(ex.stack.peek(), -1.0, delta=0.001)
 
     def test_sub_float_negative(self):
-        environment.get_stack().push_multiple([3, -0.1])
+        environment.get_stack().push_multiple([-0.1, 3])
         ex = Expression(bytes([SUB]))
         ex()
         self.assertAlmostEqual(ex.stack.peek(), -3.1, delta=0.001)
 
     def test_sub_float_double_negative(self):
-        environment.get_stack().push_multiple([-3.5, -2.5])
+        environment.get_stack().push_multiple([-2.5, -3.5])
         ex = Expression(bytes([SUB]))
         ex()
         self.assertAlmostEqual(ex.stack.peek(), 1.0, delta=0.001)
@@ -351,7 +351,7 @@ class TestExpression(unittest.TestCase):
 
     # region DIV
     def test_div_float_identity(self):
-        environment.get_stack().push_multiple([1.0, 2.0])
+        environment.get_stack().push_multiple([2.0, 1.0])
         ex = Expression(bytes([DIV]))
         ex()
         self.assertAlmostEqual(ex.stack.peek(), 2.0, delta=0.001)
@@ -363,25 +363,25 @@ class TestExpression(unittest.TestCase):
         self.assertAlmostEqual(ex.stack.peek(), 1.0, delta=0.001)
 
     def test_div_float_positive(self):
-        environment.get_stack().push_multiple([5.0, 2.5])
+        environment.get_stack().push_multiple([2.5, 5.0])
         ex = Expression(bytes([DIV]))
         ex()
         self.assertAlmostEqual(ex.stack.peek(), 0.5, delta=0.001)
 
     def test_div_float_negative(self):
-        environment.get_stack().push_multiple([3.0, -0.1])
+        environment.get_stack().push_multiple([-0.1, 3])
         ex = Expression(bytes([DIV]))
         ex()
         self.assertAlmostEqual(ex.stack.peek(), -0.03333, delta=0.001)
 
     def test_div_float_double_negative(self):
-        environment.get_stack().push_multiple([-0.5, -2.5])
+        environment.get_stack().push_multiple([-2.5, -0.5])
         ex = Expression(bytes([DIV]))
         ex()
         self.assertAlmostEqual(ex.stack.peek(), 5.0, delta=0.001)
 
     def test_div_divide_by_zero(self):
-        environment.get_stack().push_multiple([0, 1])
+        environment.get_stack().push_multiple([1, 0])
         ex = Expression(bytes([DIV]))
         with self.assertRaises(ZeroDivisionError):
             ex()  # TODO: is this actually the handling we want?
@@ -389,13 +389,13 @@ class TestExpression(unittest.TestCase):
 
     # region MOD
     def test_mod_int_0(self):
-        environment.get_stack().push_multiple([0, 10])
+        environment.get_stack().push_multiple([10, 0])
         ex = Expression(bytes([MOD]))
         with self.assertRaises(ZeroDivisionError):
             ex()  # TODO: is this actually the handling we want?
 
     def test_mod_int_1(self):
-        environment.get_stack().push_multiple([1, 10])
+        environment.get_stack().push_multiple([10, 1])
         ex = Expression(bytes([MOD]))
         ex()
         self.assertEqual(ex.stack.pop(), 0)
@@ -407,7 +407,7 @@ class TestExpression(unittest.TestCase):
         self.assertEqual(ex.stack.pop(), 0)
 
     def test_mod_int_positive(self):
-        environment.get_stack().push_multiple([10, 3])
+        environment.get_stack().push_multiple([3, 10])
         ex = Expression(bytes([MOD]))
         ex()
         self.assertEqual(ex.stack.pop(), 3)

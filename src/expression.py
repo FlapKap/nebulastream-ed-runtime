@@ -71,6 +71,8 @@ class Expression:
     Each instruction acts on the stack, or copies a value from the environment to the stack
     When the expression is called it is executed and the call returns the topmost element on the stack after execution
     it leaves the element on the stack
+
+    TODO: contains a fair amount of code duplication that could be reduced
     """
 
     def __init__(self, program: bytes):
@@ -182,12 +184,15 @@ class Expression:
     @__debug
     def __and(self):
         # & doesn't short circuit
-        self.stack.push(self.stack.pop() & self.stack.pop())
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 and l2)
 
     @__debug
     def __or(self):
-        # | doesn't short circuit
-        self.stack.push(self.stack.pop() | self.stack.pop())
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 or l2)
 
     @__debug
     def __not(self):
@@ -195,32 +200,48 @@ class Expression:
 
     @__debug
     def __lt(self):
-        self.stack.push(self.stack.pop() < self.stack.pop())
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 < l2)
 
     @__debug
     def __gt(self):
-        self.stack.push(self.stack.pop() > self.stack.pop())
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 > l2)
 
     @__debug
     def __eq(self):
-        self.stack.push(self.stack.pop() == self.stack.pop())
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 == l2)
 
     @__debug
     def __add(self):
-        self.stack.push(self.stack.pop() + self.stack.pop())
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 + l2)
 
     @__debug
     def __sub(self):
-        self.stack.push(self.stack.pop() - self.stack.pop())
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 - l2)
 
     @__debug
     def __mul(self):
-        self.stack.push(self.stack.pop() * self.stack.pop())
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 * l2)
 
     @__debug
     def __div(self):
-        self.stack.push(self.stack.pop() / self.stack.pop())
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 / l2)
 
     @__debug
     def __mod(self):
-        self.stack.push(self.stack.pop() % self.stack.pop())
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 % l2)

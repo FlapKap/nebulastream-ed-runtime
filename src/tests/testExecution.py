@@ -19,7 +19,7 @@ class TestExecution(unittest.TestCase):
         self.assertEqual(res, [4,8])
     
     def test_execute_query_without_result(self):
-        query = Query([Map(Expression(bytes([CONST, INT8, 2, VAR, 0, MUL])),1), Filter(Expression(bytes([VAR,1, CONST, INT8, 100, LT])))],[INT8])
+        query = Query([Map(Expression(bytes([CONST, INT8, 2, VAR, 0, MUL])),1), Filter(Expression(bytes([VAR,1, CONST, INT8, 2, LT])))],[INT8])
         environment.set_env_value(0,4)
         res = execution._execute_query(query)
 
@@ -32,7 +32,7 @@ class TestExecution(unittest.TestCase):
     
     def test_execute_queries_multiple_results(self):
         queries = [
-            Query([Map(Expression(bytes([CONST, INT8, 2, VAR, 0, MUL])),1), Filter(Expression(bytes([VAR,1, CONST, INT8, 100, LT])))],[INT8]),
+            Query([Map(Expression(bytes([CONST, INT8, 2, VAR, 0, MUL])),1), Filter(Expression(bytes([VAR,1, CONST, INT8, 2, LT])))],[INT8]),
             Query([Map(Expression(bytes([CONST, INT8, 2, VAR, 0, MUL])),1)],[INT8])
             ]
         res = execution.execute_queries(queries, [4])

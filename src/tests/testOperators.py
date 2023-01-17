@@ -1,6 +1,8 @@
 from unittest import unittest
 from operators import *
 import environment
+from expression import Expression, CONST, ADD, SUB, MUL
+from datatypes import INT8
 
 class TestOperators(unittest.TestCase):
 
@@ -15,7 +17,14 @@ class TestOperators(unittest.TestCase):
         self.assertTrue(op())
         self.assertEqual(environment.get_env_value(0), expected)
 
-    #TODO: make test that actually test if map reads/writes
+    def test_map_expression(self):
+        op = Map(
+            # 2 3 + 42 12 - *
+            Expression(bytes([CONST, INT8, 2, CONST, INT8, 3, ADD, CONST, INT8, 42, CONST, INT8, 12, SUB, MUL])),
+            0
+        )
+        self.assertTrue(op())
+        self.assertEqual(environment.get_env_value(0),150)
 
     def test_filter_operator_true(self):
         op = Filter(lambda : True)
