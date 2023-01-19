@@ -4,6 +4,10 @@
 to support unit-tests the unittest, unittest-discover, argparse and fnmatch from micropython-lib has been added
 
 
+## questions
+1. how to handle time?
+   Should be able to support relative time for windows, but what about drift? Or absolute events? "do something every day at midnight"
+
 ## Possible Improvemnts
 
 1. `mod` in python (and possibly micropython) behaves different for negative numbers than C (https://stackoverflow.com/questions/3883004/the-modulo-operation-on-negative-n-5umbers-in-python)
