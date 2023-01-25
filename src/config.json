@@ -1,10 +1,10 @@
 {
     "lora": {
         "joineui": "0000000000000000", 
-        "deveui":  "0102030405060708",
-        "appkey":  "01020304050607080910111213141516"
+        "deveui":  "70b3d549938ea1ee",
+        "appkey":  "8b5438fac7d8d2b4b0759b182a28b011"
     },
-    "loglevel": "info",
-    "run_test":true,
-    "sensors": ["ESP32Temperature", "ESP32StackUse"]
+    "loglevel": "debug",
+    "run_test":false,
+    "sensors": ["ESP32Temperature"]
 }

@@ -1,8 +1,20 @@
-from ucollections import namedtuple
 from micropython import const
 import environment
 
-Query = namedtuple("Query", ("operations","resultType"))
+
+class Query:
+    def __init__(self, operations, resultType) -> None:
+        self.operations = operations
+        self.resultType = resultType
+
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, Query):
+            return self.operations == __o.operations and self.resultType == __o.resultType
+        return False
+
+    def __str__(self) -> str:
+        return "Query({}, {})".format("["+ ", ".join([str(op) for op in self.operations])+ "]", str(self.resultType))
+
 
 class Operator:
 
@@ -29,7 +41,8 @@ class Map(Operator):
         return False
 
     def __str__(self):
-        return "Map({}, {})".format(self.f, self.attribute)
+        return "Map({}, {})".format(str(self.f), str(self.attribute))
+
 
 class Filter(Operator):
     def __init__(self, predicate):
@@ -42,6 +55,9 @@ class Filter(Operator):
         if isinstance(__o, Filter):
             return self.f == __o.f
         return False
+
+    def __str__(self):
+        return "Filter({})".format(str(self.f))
 
 
 # windows
@@ -94,17 +110,26 @@ class TumblingWindow(Operator):
     def __eq__(self, __o):
         if isinstance(__o, TumblingWindow):
             return (
-                    self.__size_type        == __o.__size_type and 
-                    self.__agg_type         == __o.__agg_type and
-                    self.__size             == __o.__size and 
-                    self.__start_attribute  == __o.__start_attribute and
-                    self.__end_attribute    == __o.__end_attribute and
-                    self.__read_attribute   == __o.__read_attribute and
-                    self.__call_count       == __o.__call_count and
-                    self.__state            == __o.__state
-                    )
+                self.__size_type == __o.__size_type and
+                self.__agg_type == __o.__agg_type and
+                self.__size == __o.__size and
+                self.__start_attribute == __o.__start_attribute and
+                self.__end_attribute == __o.__end_attribute and
+                self.__read_attribute == __o.__read_attribute and
+                self.__call_count == __o.__call_count and
+                self.__state == __o.__state
+            )
         return False
 
+    def __str__(self) -> str:
+        return "Window({}, {}, {}, {}, {}, {}, {}, {})".format(*map(str, (self.__size_type,
+                                                                            self.__agg_type,
+                                                                            self.__size,
+                                                                            self.__start_attribute,
+                                                                            self.__end_attribute,
+                                                                            self.__read_attribute,
+                                                                            self.__call_count,
+                                                                            self.__state)))
     # region aggfuncs
     # These functions handle the agg computation itself
 
@@ -173,9 +198,9 @@ class TumblingWindow(Operator):
         if self.__call_count != 0 and self.__call_count % self.__size == self.__size - 1:
             environment.set_env_value(self.__result_attribute, res)
             environment.set_env_value(self.__start_attribute,
-                                  self.__call_count - (self.__size-1))
+                                      self.__call_count - (self.__size-1))
             environment.set_env_value(self.__end_attribute,
-                                  self.__call_count)
+                                      self.__call_count)
             # reset state
             self.__state = {}
             output = True

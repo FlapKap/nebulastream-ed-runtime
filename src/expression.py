@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # data
 # these indicate that the next value in the instrlist is a value
 CONST = const(0)
-VAR = const(13)
+VAR = const(1)
 
 # logical
 AND = const(2)
@@ -131,10 +131,10 @@ class Expression:
                 for i in range(0, size+1):
                     next(instr_iter)
         instrs = "[" + ",".join(instrs) + "]"
-        return "Expression(\n\tpc: {}\n\tprogram: {}\n\t{})".format(self.pc, instrs, self.stack)
+        return "Expression(pc={}\n\tprogram={},stack={})".format(self.pc, instrs, self.stack)
 
     def __call__(self, *args, **kwargs):
-        logger.debug("Expression called with: {} {}".format(args, kwargs))
+        logger.debug("Expression called")
         self.stack = kwargs["stack"] if "stack" in kwargs.keys() else environment.get_stack()
 
         # if called with arguments, we assume its input that needs to be pushed to the stack before operations start

@@ -13,8 +13,8 @@ class ESP32Temperature(Sensor):
         import machine
         self.machine = machine
 
-    def pull(self) -> float:
-        return ((self.machine.temperature() - 32) / 1.8)
+    def pull(self) -> int:
+        return int((self.machine.temperature() - 32) / 1.8)
 
 
 class ESP32StackUse(Sensor):

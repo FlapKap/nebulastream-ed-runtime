@@ -6,6 +6,10 @@
 		{
 			"name": "serial://dev/tty.usbmodemPy7d9a491",
 			"uri": "serial://%2fdev%2ftty.usbmodempy7d9a491/flash"
+		},
+		{
+			"name": "serial://dev/tty.usbmodemPy0bba0e1",
+			"uri": "serial://%2fdev%2ftty.usbmodempy0bba0e1/flash"
 		}
 	],
 	"settings": {}
