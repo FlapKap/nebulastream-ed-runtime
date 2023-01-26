@@ -78,6 +78,7 @@ while True:
     logger.debug("\tChecking if result needs to be transmitted")
     if all(map(lambda x: x is None or len(x) == 0, query_results)):
         logger.debug("\tno queries with responses. Not transmitting anything")
+        time.sleep(10)
         continue
 
     logger.debug("\tgather results that needs to be transmitted")
@@ -110,6 +111,6 @@ while True:
     #     msg = lora.recieve_blocking()
     #     queries = protocol.decode_input_msg(msg)
     #     logger.info("configuration recieved: {} operators".format(len(queries)))
-    time.sleep(5)
+    time.sleep(10) # this is also defined in the filter early-exit
 
 logging.shutdown()

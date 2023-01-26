@@ -124,7 +124,7 @@ class Expression:
             if inst == VAR:
                 instrs.append(str(next(instr_iter)[1]))
             elif inst == CONST:
-                value, size, typ, fmt = self.__read_instr_value(i)
+                value, size, typ, fmt = self.__read_instr_value(i+1)
                 instrs.append(datatypes.type_to_name[typ])
                 instrs.append(str(value))
                 # advance iterator by type + size
@@ -157,6 +157,8 @@ class Expression:
         fmt = datatypes.type_to_fmt[typ]
         size = struct.calcsize(fmt)
         value = struct.unpack_from(fmt, self.program, index + 1)[0]
+        logger.debug("read instr val at {} : type: {}, fmt: {}, value: {}, size {}".format(
+           i, datatypes.type_to_name[typ], fmt, value, size))
         return value, size, typ, fmt
 
     def __pop_instr_value(self):
