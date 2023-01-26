@@ -1,4 +1,4 @@
-
+import math
 
 class Sensor:
     # abc is not supported in micropython. Sensor is an abstract class
@@ -36,6 +36,18 @@ class PyTrackGPS(Sensor):
     def pull(self) -> tuple[float, float]:
         return self.gps.coordinates()
 
+class PyTrackAccelerometer(Sensor):
+    def __init__(self) -> None:
+        from pycoproc_1 import Pycoproc
+        from LIS2HH12 import LIS2HH12
+        self.py = Pycoproc(Pycoproc.PYTRACK)
+        self.acc = LIS2HH12()
+
+    def pull(self) -> int:
+        x,y,z = self.acc.acceleration()
+        return int(math.sqrt(x**2 + y**2 + z**2)*100)
+
+
 
 class Sensors:
     """
@@ -54,6 +66,8 @@ class Sensors:
                 sensors.append(ESP32Temperature())
             elif sens == "ESP32StackUse":
                 sensors.append(ESP32StackUse())
+            elif sens == "PyTrackAccelerometer":
+                sensors.append(PyTrackAccelerometer())
 
         self.__sensors = sensors
         self.__sensorindex = indexmap

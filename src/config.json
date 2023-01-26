@@ -6,5 +6,5 @@
     },
     "loglevel": "debug",
     "run_test":false,
-    "sensors": ["ESP32Temperature"]
+    "sensors": ["ESP32Temperature", "PyTrackAccelerometer"]
 }
