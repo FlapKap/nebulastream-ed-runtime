@@ -131,7 +131,7 @@ class Expression:
                 for i in range(0, size+1):
                     next(instr_iter)
         instrs = "[" + ",".join(instrs) + "]"
-        return "Expression(pc={}\n\tprogram={},stack={})".format(self.pc, instrs, self.stack)
+        return "Expression(pc={},program={},stack={})".format(self.pc, instrs, self.stack)
 
     def __call__(self, *args, **kwargs):
         logger.debug("Expression called")
