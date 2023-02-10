@@ -2,17 +2,28 @@ syntax = "proto3";
 
 package EndDeviceProtocol;
 
-enum DataTypes {
-    INT8 = 0;
-    UINT8 = 1;
-    INT16 = 2;
-    UINT16 = 3;
-    INT32 = 4;
-    UINT32 = 5;
-    INT64 = 6;
-    UINT64 = 7;
-    FLOAT = 8;
-    DOUBLE = 9;
+// enum DataTypes {
+//     INT8 = 0;
+//     UINT8 = 1;
+//     INT16 = 2;
+//     UINT16 = 3;
+//     INT32 = 4;
+//     UINT32 = 5;
+//     INT64 = 6;
+//     UINT64 = 7;
+//     FLOAT = 8;
+//     DOUBLE = 9;
+// }
+
+message Value {
+    oneof value {
+        uint32 _uint8_32 = 1;
+        uint64 _uint64 = 2;
+        sint32 _int8_32 = 3;
+        sint64 _int64 = 4;
+        float _float = 5;
+        double _double = 6;
+    }
 }
 
 enum ExpressionInstructions {
@@ -30,26 +41,32 @@ enum ExpressionInstructions {
     DIV = 11;
     MOD = 12;
 }
+message Data {
+    oneof data{
+        ExpressionInstructions instruction = 1;
+        Value value = 2;
+    }
+}
 
 message Output {
     message QueryResponse {
         int32 id = 1;
-        repeated bytes response = 2;
+        repeated Value response = 2;
     }
     repeated QueryResponse responses = 1;
 }
 
 message Expression {
-    bytes instructions = 1;
+    repeated Data instructions = 1;
 }
 
 message MapOperation {
-    Expression function = 1;
+    repeated Data function = 1;
     int32 attribute = 2;
 }
 
 message FilterOperation {
-    Expression predicate = 1;
+    repeated Data predicate = 1;
 }
 
 enum WindowAggregationType {
@@ -81,8 +98,8 @@ message Query {
         FilterOperation filter = 2;
         WindowOperation window = 3;
     }
-    bytes resultType = 1; //For some reason minipb breaks if I make this a repeated enum or int32
-    repeated Operation operations = 2;
+    //bytes resultType = 1; //For some reason minipb breaks if I make this a repeated enum or int32
+    repeated Operation operations = 1;
     
 }
 

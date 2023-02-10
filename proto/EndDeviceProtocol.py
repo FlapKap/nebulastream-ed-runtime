@@ -7,19 +7,6 @@ from typing import List
 import betterproto
 
 
-class DataTypes(betterproto.Enum):
-    INT8 = 0
-    UINT8 = 1
-    INT16 = 2
-    UINT16 = 3
-    INT32 = 4
-    UINT32 = 5
-    INT64 = 6
-    UINT64 = 7
-    FLOAT = 8
-    DOUBLE = 9
-
-
 class ExpressionInstructions(betterproto.Enum):
     CONST = 0
     VAR = 1
@@ -50,6 +37,22 @@ class WindowSizeType(betterproto.Enum):
 
 
 @dataclass
+class Value(betterproto.Message):
+    _uint8_32: int = betterproto.uint32_field(1, group="value")
+    _uint64: int = betterproto.uint64_field(2, group="value")
+    _int8_32: int = betterproto.sint32_field(3, group="value")
+    _int64: int = betterproto.sint64_field(4, group="value")
+    _float: float = betterproto.float_field(5, group="value")
+    _double: float = betterproto.double_field(6, group="value")
+
+
+@dataclass
+class Data(betterproto.Message):
+    instruction: "ExpressionInstructions" = betterproto.enum_field(1, group="data")
+    value: "Value" = betterproto.message_field(2, group="data")
+
+
+@dataclass
 class Output(betterproto.Message):
     responses: List["OutputQueryResponse"] = betterproto.message_field(1)
 
@@ -57,23 +60,23 @@ class Output(betterproto.Message):
 @dataclass
 class OutputQueryResponse(betterproto.Message):
     id: int = betterproto.int32_field(1)
-    response: List[bytes] = betterproto.bytes_field(2)
+    response: List["Value"] = betterproto.message_field(2)
 
 
 @dataclass
 class Expression(betterproto.Message):
-    instructions: bytes = betterproto.bytes_field(1)
+    instructions: List["Data"] = betterproto.message_field(1)
 
 
 @dataclass
 class MapOperation(betterproto.Message):
-    function: "Expression" = betterproto.message_field(1)
+    function: List["Data"] = betterproto.message_field(1)
     attribute: int = betterproto.int32_field(2)
 
 
 @dataclass
 class FilterOperation(betterproto.Message):
-    predicate: "Expression" = betterproto.message_field(1)
+    predicate: List["Data"] = betterproto.message_field(1)
 
 
 @dataclass
@@ -89,8 +92,9 @@ class WindowOperation(betterproto.Message):
 
 @dataclass
 class Query(betterproto.Message):
-    result_type: bytes = betterproto.bytes_field(1)
-    operations: List["QueryOperation"] = betterproto.message_field(2)
+    # bytes resultType = 1; //For some reason minipb breaks if I make this a
+    # repeated enum or int32
+    operations: List["QueryOperation"] = betterproto.message_field(1)
 
 
 @dataclass

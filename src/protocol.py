@@ -7,37 +7,58 @@ import datatypes
 # should correspond to schema found in ../proto/protocol.proto
 # these are placed here instead of in the operation objects, since they all use the expression schema
 
-__output_query_response_schema = (("id","t"),("response", "+a"),)
-__output_queryresponses_schema = (("responses", "+[", __output_query_response_schema, "]"),)
+__output_query_response_schema = (('id', 't'), ('response', '+a'),)
+__output_queryresponses_schema = (
+    ('responses', '+[', __output_query_response_schema, ']'),)
 
-__expression_schema = (('instructions', 'a'),)
+__value_schema = (
+    ('value'), (
+        ('_uint8_32', 'T'),
+        ('_uint64', 'T'),
+        ('_int8_32', 'z'),
+        ('_int64', 'z'),
+        ('_float','f'),
+        ('_double','d'),
+    ),)
 
-__filter_schema = (("predicate", __expression_schema),)
-__map_schema = (("function", __expression_schema),("attribute","t"),)
+__data_schema = (
+    ('data',
+    # An Enum is in protobuf represented as 32bit vint. Therefore 'a' here
+    # https://github.com/dogtopus/minipb/wiki/High-level-Protobuf-Features#enums
+     ('instruction', 'a'),
+     ('value', __value_schema),
+     ),
+)
+
+__expression_schema = (('instructions', '+[', __data_schema, ']'),)
+
+__filter_schema = (('predicate', __data_schema),)
+__map_schema = (('function', __data_schema), ('attribute', 't'),)
 __window_schema = (
-    ("size", "t"),
-    ("sizeType", "t"),
-    ("aggregationType", "t"),
-    ("startAttribute", "t"),
-    ("endAttribute", "t"),
-    ("resultAttribute", "t"),
-    ("readAttribute", "t"),)
+    ('size', 't'),
+    ('sizeType', 't'),
+    ('aggregationType', 't'),
+    ('startAttribute', 't'),
+    ('endAttribute', 't'),
+    ('resultAttribute', 't'),
+    ('readAttribute', 't'),
+    )
 
 
 # This is supposed to be a oneof, but the minipb doesnt seem to be able to enforce that
 __operation_types = (
-    ("map", __map_schema),
-    ("filter", __filter_schema),
-    ("window", __window_schema),
+    ('map', __map_schema),
+    ('filter', __filter_schema),
+    ('window', __window_schema),
 )
 
 __query_schema = (
-    ("resultType", "a"),
-    ("operations", "+[", __operation_types ,"]"),
+    ('resultType', 'a'),
+    ('operations', '+[', __operation_types, ']'),
 )
 
 __message_schema = (
-    ("queries", "+[", __query_schema, "]"),
+    ('queries', '+[', __query_schema, ']'),
 )
 
 __wire_input = minipb.Wire(
@@ -48,12 +69,14 @@ __wire_output = minipb.Wire(__output_queryresponses_schema)
 def has_msg(name, msg) -> bool:
     return isinstance(msg, dict) and name in msg.keys() and msg[name] is not None
 
+
 def decode_input_msg(b) -> list[operators.Query]:
     queries_raw = __wire_input.decode(b)["queries"]
     queries = []
     for operations_raw in queries_raw:
         operations = []
-        resultType = datatypes.unpack_array_fixed_type(datatypes.INT8, operations_raw["resultType"]) if operations_raw["resultType"] is not None else None
+        resultType = datatypes.unpack_array_fixed_type(
+            datatypes.INT8, operations_raw["resultType"]) if operations_raw["resultType"] is not None else None
         for op_raw in operations_raw["operations"]:
             if has_msg("map", op_raw):
                 opmap = op_raw['map']
@@ -64,8 +87,9 @@ def decode_input_msg(b) -> list[operators.Query]:
                     opmap['function']['instructions']), opmap['attribute']))
 
             if has_msg("filter", op_raw):
-                operations.append(operators.Filter(Expression(op_raw['filter']['predicate']['instructions'])))
-            
+                operations.append(operators.Filter(Expression(
+                    op_raw['filter']['predicate']['instructions'])))
+
             if has_msg("window", op_raw):
                 opwindow = op_raw['window']
                 for k, v in opwindow.items():
@@ -73,7 +97,7 @@ def decode_input_msg(b) -> list[operators.Query]:
                         opwindow[k] = 0
                 operations.append(operators.TumblingWindow(**opwindow))
         queries.append(operators.Query(operations, resultType))
-    
+
     return queries
 
 

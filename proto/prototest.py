@@ -1,6 +1,5 @@
 from EndDeviceProtocol import *
 from EndDeviceProtocol import ExpressionInstructions as Einstr
-from EndDeviceProtocol import DataTypes as Dtype
 
 # This file is used to generate the binary protobuf messages that are used for testing
 # the protocol implementation in ../src/protocol.py
@@ -11,48 +10,55 @@ if __name__ == "__main__":
 
     map_msg = Message(queries=[
         Query(operations=[QueryOperation(map=MapOperation(
-            Expression(instructions=bytes([Einstr.CONST, Dtype.INT32, 8, Einstr.MUL])), attribute=1))], result_type=bytes([Dtype.INT32]))
+            [
+                Data(Einstr.CONST),
+                Data(value=Value(_uint8_32=8)),
+                Data(Einstr.MUL)
+            ],
+            attribute=1))])
     ])
 
-    filter_msg = Message(queries=[Query(operations=[QueryOperation(filter=FilterOperation(
-        predicate=Expression(instructions=bytes([Einstr.CONST, Dtype.INT8, 8, Einstr.LT]))))])])
+    filter_msg = Message(queries=[Query([QueryOperation(filter=FilterOperation(
+        predicate=[Data(Einstr.CONST),
+                              Data(value=Value(_uint8_32=8)),
+                              Data(Einstr.LT)]
+                             ))])])
 
-    map_filter_msg = Message(queries=[Query(result_type=bytes([Dtype.INT32]), operations=[QueryOperation(map=MapOperation(
-        Expression(instructions=bytes([Einstr.CONST, Dtype.INT32, 8, Einstr.MUL])))),
-        QueryOperation(filter=FilterOperation(predicate=Expression(instructions=bytes([Einstr.CONST, Dtype.INT16, 50, Einstr.GT]))))])])
+    map_filter_msg = Message(queries=[Query([
+        QueryOperation(map=MapOperation(
+            [Data(Einstr.CONST),
+                        Data(value=Value(_uint8_32=8)), Data(Einstr.MUL)])),
+        QueryOperation(filter=FilterOperation(predicate=[Data(Einstr.CONST), Data(value=Value(_int8_32=50)), Data(Einstr.GT)]))])])
 
-    window_msg = Message(queries=[Query(result_type=bytes([Dtype.INT32]), operations=[
+    window_msg = Message(queries=[Query([
         QueryOperation(window=WindowOperation(3, WindowSizeType.COUNTBASED, WindowAggregationType.COUNT, 0, 1, 2, 3))])])
 
     multiple_msg = Message(
         queries=[
             Query(
-                result_type=bytes([Dtype.INT8]),
                 operations=[QueryOperation(
                     map=MapOperation(
-                        function=Expression(bytes([Einstr.CONST, Dtype.INT8, 1])), attribute=0))
-                ]
+                        function=[Data(Einstr.CONST),
+                                             Data(value=Value(_uint8_32=8))], attribute=0))
+                            ]
             ),
-            Query(result_type=bytes([Dtype.INT32]),
-                  operations=[
+            Query([
                 QueryOperation(window=WindowOperation(
                     3, WindowSizeType.COUNTBASED, WindowAggregationType.COUNT, 0, 1, 2, 3)),
                 QueryOperation(filter=FilterOperation(
-                    predicate=Expression(instructions=bytes([Einstr.CONST, Dtype.INT8, 8, Einstr.LT]))))
-            ]
-            )
+                    predicate=[Data(Einstr.CONST), Data(value=Value(_int8_32=50)), Data(Einstr.LT)]))])
         ]
     )
 
     output_single_msg = Output([OutputQueryResponse(
-        1, [b'HELLO', b'THERE', b'GENERAL', b'KENOBI'])])
+        1, [Value(_uint8_32=ord('H')), Value(_uint8_32=ord('E')), Value(_uint8_32=ord('L')), Value(_uint8_32=ord('L')), Value(_uint8_32=ord('O'))])])
 
     output_multiple_msg = Output([
-        OutputQueryResponse(1, [b'I']),
-        OutputQueryResponse(2, [b'KNOW']),
-        OutputQueryResponse(3, [b'HIM']),
-        OutputQueryResponse(4, [b'HES']),
-        OutputQueryResponse(5, [b'ME']),
+        OutputQueryResponse(1, [Value(_uint8_32=ord('H'))]),
+        OutputQueryResponse(2, [Value(_uint8_32=ord('E'))]),
+        OutputQueryResponse(3, [Value(_uint8_32=ord('L'))]),
+        OutputQueryResponse(4, [Value(_uint8_32=ord('L'))]),
+        OutputQueryResponse(5, [Value(_uint8_32=ord('O'))]),
     ])
 
     print("empty_msg")
