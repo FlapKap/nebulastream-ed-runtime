@@ -4,7 +4,7 @@
         "deveui":  "70b3d549938ea1ee",
         "appkey":  "8b5438fac7d8d2b4b0759b182a28b011"
     },
-    "loglevel": "debug",
-    "run_test":false,
-    "sensors": ["ESP32Temperature", "PyTrackAccelerometer"]
+    "loglevel": "info",
+    "run_test":true,
+    "sensors": ["ESP32Temperature", "ESP32StackUse"]
 }

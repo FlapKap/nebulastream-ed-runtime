@@ -15,7 +15,8 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(msg, expected)
 
     def test_map_msg(self):
-        raw_msg = b'\n\x11\n\x01\x04\x12\x0c\n\n\n\x06\n\x04\x00\x04\x08\n\x10\x01'
+        raw_msg = b'\n\x14\n\x12\n\x10\n\x02\x08\x00\n\x04\x12\x02\x08\x08\n\x02\x08\n\x10\x01'
+
         op = protocol.decode_input_msg(raw_msg)
         expected = [
             Query([Map(Expression(bytes([CONST, INT32, 8, MUL])), 1)], [INT32])]
@@ -24,7 +25,7 @@ class TestProtocol(unittest.TestCase):
         # self.assertEqual(op.resultType, expected.resultType)
 
     def test_filter_msg(self):
-        raw_msg = b'\n\x0c\x12\n\x12\x08\n\x06\n\x04\x00\x00\x08\x05'
+        raw_msg = b'\n\x12\n\x10\x12\x0e\n\x02\x08\x00\n\x04\x12\x02\x08\x08\n\x02\x08\x05'
         op = protocol.decode_input_msg(raw_msg)
 
         expected = [
@@ -32,7 +33,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(op, expected)
 
     def test_map_filter_msg(self):
-        raw_msg = b'\n\x1b\n\x01\x04\x12\n\n\x08\n\x06\n\x04\x00\x04\x08\n\x12\n\x12\x08\n\x06\n\x04\x00\x022\x06'
+        raw_msg = b'\n$\n\x10\n\x0e\n\x02\x08\x00\n\x04\x12\x02\x08\x08\n\x02\x08\n\n\x10\x12\x0e\n\x02\x08\x00\n\x04\x12\x02\x18d\n\x02\x08\x06'
         ops = protocol.decode_input_msg(raw_msg)
 
         expected = [Query([

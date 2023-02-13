@@ -12,28 +12,31 @@ __output_queryresponses_schema = (
     ('responses', '+[', __output_query_response_schema, ']'),)
 
 __value_schema = (
-    ('value'), (
+    ('value', (
         ('_uint8_32', 'T'),
         ('_uint64', 'T'),
         ('_int8_32', 'z'),
         ('_int64', 'z'),
-        ('_float','f'),
-        ('_double','d'),
-    ),)
-
-__data_schema = (
-    ('data',
-    # An Enum is in protobuf represented as 32bit vint. Therefore 'a' here
-    # https://github.com/dogtopus/minipb/wiki/High-level-Protobuf-Features#enums
-     ('instruction', 'a'),
-     ('value', __value_schema),
-     ),
+        ('_float', 'f'),
+        ('_double', 'd'),
+    ),
+    ),
 )
 
-__expression_schema = (('instructions', '+[', __data_schema, ']'),)
+__data_schema = (
+    ('data', (
+        # An Enum is in protobuf represented as 32bit vint. Therefore 'a' here
+        # https://github.com/dogtopus/minipb/wiki/High-level-Protobuf-Features#enums
+        ('instruction', 'a'),
+        ('value', __value_schema),
+    )
+    ),
+)
 
-__filter_schema = (('predicate', __data_schema),)
-__map_schema = (('function', __data_schema), ('attribute', 't'),)
+__expression_schema = (('instructions', '+[', __data_schema, ']',),)
+
+__filter_schema = (('predicate', __expression_schema,),)
+__map_schema = (('function', __expression_schema), ('attribute', 't'),)
 __window_schema = (
     ('size', 't'),
     ('sizeType', 't'),
@@ -42,7 +45,7 @@ __window_schema = (
     ('endAttribute', 't'),
     ('resultAttribute', 't'),
     ('readAttribute', 't'),
-    )
+)
 
 
 # This is supposed to be a oneof, but the minipb doesnt seem to be able to enforce that
