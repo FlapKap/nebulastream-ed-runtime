@@ -1,4 +1,5 @@
 from typing import Union
+from math import log, log10, log2, sqrt, floor, ceil, exp
 from micropython import const
 import logging
 import struct
@@ -7,11 +8,12 @@ import datatypes
 logger = logging.getLogger(__name__)
 
 # stack-based language
-# consists of instr and values in a bytearray to execute operations on a stack
+# consists of instr and values in an array to execute operations on a stack
 # there are 2 special operations: CONST and VAR.
-# CONST: is followed by a type constant and a value of the size of the type constant.
+# DEPRECATED: CONST: is followed by a type constant and a value of the size of the type constant.
+# CONST is followed by a constant
 # VAR: is followed by a uint8 value.
-# it is assumed values from sensors are placed in the environement at an index corresponding to their id
+# it is assumed values from sensors are placed in the environment at an index corresponding to their id
 
 
 # instructions
@@ -30,12 +32,26 @@ LT = const(5)
 GT = const(6)
 EQ = const(7)
 
+## relational expanded
+LTEQ = const(23)
+GTEQ = const(24)
+
 # arithmetic
 ADD = const(8)
 SUB = const(9)
 MUL = const(10)
 DIV = const(11)
 MOD = const(12)
+LOG = const(13)
+LOG2 = const(14)
+LOG10 = const(15)
+POW = const(16)
+SQRT = const(17)
+EXP = const(18)
+CEIL = const(19)
+FLOOR = const(20)
+ROUND = const(21)
+ABS = const(22)
 
 instr_to_name = {
     CONST: "CONST",
@@ -44,13 +60,25 @@ instr_to_name = {
     OR: "OR",
     NOT: "NOT",
     LT: "LT",
+    LTEQ: "LTEQ",
     GT: "GT",
+    GTEQ: "GTEQ",
     EQ: "EQ",
     ADD: "ADD",
     SUB: "SUB",
     MUL: "MUL",
     DIV: "DIV",
-    MOD: "MOD"
+    MOD: "MOD",
+    LOG: "LOG",
+    LOG2: "LOG2",
+    LOG10: "LOG10",
+    POW: "POW",
+    SQRT: "SQRT",
+    EXP: "EXP",
+    CEIL: "CEIL",
+    FLOOR: "FLOOR",
+    ROUND: "ROUND",
+    ABS: "ABS"
 }
 
 
@@ -93,7 +121,19 @@ class Expression:
             SUB: self.__sub,
             MUL: self.__mul,
             DIV: self.__div,
-            MOD: self.__mod
+            MOD: self.__mod,
+            LOG: self.__log,
+            LOG2: self.__log2,
+            LOG10: self.__log10,
+            POW: self.__pow,
+            SQRT: self.__sqrt,
+            EXP: self.__exp,
+            CEIL: self.__ceil,
+            FLOOR: self.__floor,
+            ROUND: self.__round,
+            ABS: self.__abs,
+            LTEQ: self.__lteq,
+            GTEQ: self.__gteq
         }
 
     def reset(self):
@@ -152,25 +192,25 @@ class Expression:
 
         return self.stack.peek()
 
-    def __read_instr_value(self, i=None):
-        # assume current pc is type
-        index = i if i is not None else self.pc
-        typ = self.program[index]
-        fmt = datatypes.type_to_fmt[typ]
-        size = struct.calcsize(fmt)
-        value = struct.unpack_from(fmt, self.program, index + 1)[0]
-        logger.debug("read instr val at {} : type: {}, fmt: {}, value: {}, size {}".format(
-           i, datatypes.type_to_name[typ], fmt, value, size))
-        return value, size, typ, fmt
+    # def __read_instr_value(self, i=None):
+    #     # assume current pc is type
+    #     index = i if i is not None else self.pc
+    #     typ = self.program[index]
+    #     fmt = datatypes.type_to_fmt[typ]
+    #     size = struct.calcsize(fmt)
+    #     value = struct.unpack_from(fmt, self.program, index + 1)[0]
+    #     logger.debug("read instr val at {} : type: {}, fmt: {}, value: {}, size {}".format(
+    #        i, datatypes.type_to_name[typ], fmt, value, size))
+    #     return value, size, typ, fmt
 
-    def __pop_instr_value(self):
-        # pop type of value
-        value, size, typ, fmt = self.__read_instr_value()
+    # def __pop_instr_value(self):
+    #     # pop type of value
+    #     value, size, typ, fmt = self.__read_instr_value()
 
-        self.pc += size + 1
-        logger.debug("popped instr val: type: {}, fmt: {}, value: {}, size {}".format(
-            datatypes.type_to_name[typ], fmt, value, size))
-        return value
+    #     self.pc += size + 1
+    #     logger.debug("popped instr val: type: {}, fmt: {}, value: {}, size {}".format(
+    #         datatypes.type_to_name[typ], fmt, value, size))
+    #     return value
 
     # @__debug
     def __const(self):
@@ -253,3 +293,54 @@ class Expression:
         l2 = self.stack.pop()
         l1 = self.stack.pop()
         self.stack.push(l1 % l2)
+
+    def __log(self):
+        l1 = self.stack.pop()
+        self.stack.push(log(l1))
+
+    def __log2(self):
+        l1 = self.stack.pop()
+        self.stack.push(log2(l1))
+
+    def __log10(self):
+        l1 = self.stack.pop()
+        self.stack.push(log10(l1))
+
+    def __pow(self):
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 ** l2)
+        
+    def __sqrt(self):
+        l1 = self.stack.pop()
+        self.stack.push(sqrt(l1))
+
+    def __exp(self):
+        l1 = self.stack.pop()
+        self.stack.push(exp(l1))
+
+    def __ceil(self):
+        l1 = self.stack.pop()
+        self.stack.push(ceil(l1))
+    
+    def __floor(self):
+        l1 = self.stack.pop()
+        self.stack.push(floor(l1))
+    
+    def __round(self):
+        l1 = self.stack.pop()
+        self.stack.push(round(l1))
+    
+    def __abs(self):
+        l1 = self.stack.pop()
+        self.stack.push(abs(l1))
+    
+    def __lteq(self):
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 <= l2)
+
+    def __gteq(self):
+        l2 = self.stack.pop()
+        l1 = self.stack.pop()
+        self.stack.push(l1 >= l2)
