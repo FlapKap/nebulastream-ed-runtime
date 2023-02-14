@@ -1,3 +1,4 @@
+from typing import Union
 from micropython import const
 import logging
 import struct
@@ -53,15 +54,15 @@ instr_to_name = {
 }
 
 
-def __debug(func):
-    def decorated(self):
-        #before = str(self.stack)
-        res = func(self)
-        #after = str(self.stack)
-        logger.debug("{} called. Expression state\n{}".format(func, self))
-        return res
+# def __debug(func):
+#     def decorated(self):
+#         #before = str(self.stack)
+#         res = func(self)
+#         #after = str(self.stack)
+#         logger.debug("{} called. Expression state\n{}".format(func, self))
+#         return res
 
-    return decorated
+#     return decorated
 
 
 class Expression:
@@ -75,7 +76,7 @@ class Expression:
     TODO: contains a fair amount of code duplication that could be reduced
     """
 
-    def __init__(self, program: bytes):
+    def __init__(self, program: list[Union[int,float]]):
         self.program = program
         self.pc = 0  # program counter
         self.stack = environment.get_stack()
@@ -124,12 +125,13 @@ class Expression:
             if inst == VAR:
                 instrs.append(str(next(instr_iter)[1]))
             elif inst == CONST:
-                value, size, typ, fmt = self.__read_instr_value(i+1)
-                instrs.append(datatypes.type_to_name[typ])
-                instrs.append(str(value))
-                # advance iterator by type + size
-                for i in range(0, size+1):
-                    next(instr_iter)
+                instrs.append(str(next(instr_iter)[1]))
+                # value, size, typ, fmt = self.__read_instr_value(i+1)
+                # instrs.append(datatypes.type_to_name[typ])
+                # instrs.append(str(value))
+                # # advance iterator by type + size
+                # for i in range(0, size+1):
+                #     next(instr_iter)
         instrs = "[" + ",".join(instrs) + "]"
         return "Expression(pc={},program={},stack={})".format(self.pc, instrs, self.stack)
 
@@ -173,76 +175,80 @@ class Expression:
     # @__debug
     def __const(self):
         '''push next element from program as data to the stack, and increase program counter'''
-        self.stack.push(self.__pop_instr_value())
+        e = self.program[self.pc]
+        self.pc += 1
+        self.stack.push(e)
+        #self.stack.push(self.__pop_instr_value())
 
     # @__debug
     def __var(self):
         '''read next value from program as key to value in env, and push env value to stack'''
-        var_index = struct.unpack_from(
-            "<B", self.program, self.pc)[0]
+        # var_index = struct.unpack_from(
+        #     "<B", self.program, self.pc)[0]
+        var_index = self.program[self.pc]
         self.pc += 1
         self.stack.push(environment.get_env_value(var_index))
 
-    @__debug
+    #@__debug
     def __and(self):
         # & doesn't short circuit
         l2 = self.stack.pop()
         l1 = self.stack.pop()
         self.stack.push(l1 and l2)
 
-    @__debug
+    #@__debug
     def __or(self):
         l2 = self.stack.pop()
         l1 = self.stack.pop()
         self.stack.push(l1 or l2)
 
-    @__debug
+    #@__debug
     def __not(self):
         self.stack.push(not self.stack.pop())
 
-    @__debug
+    #@__debug
     def __lt(self):
         l2 = self.stack.pop()
         l1 = self.stack.pop()
         self.stack.push(l1 < l2)
 
-    @__debug
+    #@__debug
     def __gt(self):
         l2 = self.stack.pop()
         l1 = self.stack.pop()
         self.stack.push(l1 > l2)
 
-    @__debug
+    #@__debug
     def __eq(self):
         l2 = self.stack.pop()
         l1 = self.stack.pop()
         self.stack.push(l1 == l2)
 
-    @__debug
+    #@__debug
     def __add(self):
         l2 = self.stack.pop()
         l1 = self.stack.pop()
         self.stack.push(l1 + l2)
 
-    @__debug
+    #@__debug
     def __sub(self):
         l2 = self.stack.pop()
         l1 = self.stack.pop()
         self.stack.push(l1 - l2)
 
-    @__debug
+    #@__debug
     def __mul(self):
         l2 = self.stack.pop()
         l1 = self.stack.pop()
         self.stack.push(l1 * l2)
 
-    @__debug
+    #@__debug
     def __div(self):
         l2 = self.stack.pop()
         l1 = self.stack.pop()
         self.stack.push(l1 / l2)
 
-    @__debug
+    #@__debug
     def __mod(self):
         l2 = self.stack.pop()
         l1 = self.stack.pop()

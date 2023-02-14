@@ -3,17 +3,18 @@ import environment
 
 
 class Query:
-    def __init__(self, operations, resultType) -> None:
+    def __init__(self, operations) -> None:
         self.operations = operations
-        self.resultType = resultType
+        #self.resultType = resultType
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, Query):
-            return self.operations == __o.operations and self.resultType == __o.resultType
+            return self.operations == __o.operations #and self.resultType == __o.resultType
         return False
 
     def __str__(self) -> str:
-        return "Query({}, {})".format("["+ ", ".join([str(op) for op in self.operations])+ "]", str(self.resultType))
+        return "Query({})".format("["+ ", ".join([str(op) for op in self.operations])+ "]")
+        #return "Query({}, {})".format("["+ ", ".join([str(op) for op in self.operations])+ "]", str(self.resultType))
 
 
 class Operator:

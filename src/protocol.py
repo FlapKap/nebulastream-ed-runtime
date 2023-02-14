@@ -1,3 +1,4 @@
+from typing import Union
 import minipb
 import logging
 import operators
@@ -72,14 +73,35 @@ __wire_output = minipb.Wire(__output_queryresponses_schema)
 def has_msg(name, msg) -> bool:
     return isinstance(msg, dict) and name in msg.keys() and msg[name] is not None
 
+def decode_instructions_msg(instructions) -> list[Union[int,float]]:
+    res = []
+    for data in instructions:
+        if has_msg("instruction",data):
+            res.append(data["instruction"])
+        elif has_msg("value",data):
+            value = data["value"]
+            if has_msg("_uint8_32",value):
+                res.append(value["_uint8_32"])
+            elif has_msg("_uint64",value):
+                res.append(value["_uint64"])
+            elif has_msg("_int8_32",value):
+                res.append(value["_int8_32"])
+            elif has_msg("_int64",value):
+                res.append(value["_int64"])
+            elif has_msg("_float",value):
+                res.append(value["_float"])
+            elif has_msg("_double",value):
+                res.append(value["_double"])
+    return res
+
 
 def decode_input_msg(b) -> list[operators.Query]:
     queries_raw = __wire_input.decode(b)["queries"]
     queries = []
     for operations_raw in queries_raw:
         operations = []
-        resultType = datatypes.unpack_array_fixed_type(
-            datatypes.INT8, operations_raw["resultType"]) if operations_raw["resultType"] is not None else None
+        # resultType = datatypes.unpack_array_fixed_type(
+        #     datatypes.INT8, operations_raw["resultType"]) if operations_raw["resultType"] is not None else None
         for op_raw in operations_raw["operations"]:
             if has_msg("map", op_raw):
                 opmap = op_raw['map']
@@ -87,11 +109,11 @@ def decode_input_msg(b) -> list[operators.Query]:
                     opmap['attribute'] = 0
 
                 operations.append(operators.Map(Expression(
-                    opmap['function']['instructions']), opmap['attribute']))
+                    decode_instructions_msg(opmap['function']['instructions'])), opmap['attribute']))
 
             if has_msg("filter", op_raw):
                 operations.append(operators.Filter(Expression(
-                    op_raw['filter']['predicate']['instructions'])))
+                    decode_instructions_msg(op_raw['filter']['predicate']['instructions']))))
 
             if has_msg("window", op_raw):
                 opwindow = op_raw['window']
@@ -99,7 +121,8 @@ def decode_input_msg(b) -> list[operators.Query]:
                     if k in ("startAttribute", "endAttribute", "resultAttribute", "readAttribute") and v is None:
                         opwindow[k] = 0
                 operations.append(operators.TumblingWindow(**opwindow))
-        queries.append(operators.Query(operations, resultType))
+        #queries.append(operators.Query(operations, resultType))
+        queries.append(operators.Query(operations))
 
     return queries
 
