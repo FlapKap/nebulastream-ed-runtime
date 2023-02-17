@@ -19,8 +19,11 @@ class TestProtocol(unittest.TestCase):
 
         op = protocol.decode_input_msg(raw_msg)
         expected = [
-            Query([Map(Expression(bytes([CONST, INT32, 8, MUL])), 1)], [INT32])]
+            Query([Map(Expression([CONST, 8, MUL]), 1)])]
+        print(op)
+        print(expected)
         self.assertEqual(op, expected)
+
         # self.assertEqual(op.operations[0], expected.operations[0])
         # self.assertEqual(op.resultType, expected.resultType)
 
@@ -29,7 +32,7 @@ class TestProtocol(unittest.TestCase):
         op = protocol.decode_input_msg(raw_msg)
 
         expected = [
-            Query([Filter(Expression(bytes([CONST, INT8, 8, LT])))], None)]
+            Query([Filter(Expression([CONST, 8, LT]))])]
         self.assertEqual(op, expected)
 
     def test_map_filter_msg(self):
@@ -37,9 +40,9 @@ class TestProtocol(unittest.TestCase):
         ops = protocol.decode_input_msg(raw_msg)
 
         expected = [Query([
-            Map(Expression(bytes([CONST, INT32, 8, MUL])), 0),
-            Filter(Expression(bytes([CONST, INT16, 50, GT])))
-        ], [INT32])]
+            Map(Expression([CONST, 8, MUL]), 0),
+            Filter(Expression([CONST, 50, GT]))
+        ])]
 
         self.assertEqual(ops, expected)
 
@@ -48,19 +51,19 @@ class TestProtocol(unittest.TestCase):
         op = protocol.decode_input_msg(raw_msg)
         expected = [
             Query(
-                [TumblingWindow(WindowSizeType.COUNTBASED, WindowAggregationType.COUNT, 3, 0, 1, 2, 3)], [INT32])]
+                [TumblingWindow(WindowSizeType.COUNTBASED, WindowAggregationType.COUNT, 3, 0, 1, 2, 3)])]
 
         self.assertEqual(op, expected)
 
     def test_multiple_queries(self):
         raw_msg = b'\n\x0e\n\x01\x00\x12\t\n\x07\n\x05\n\x03\x00\x00\x01\n\x1f\n\x01\x04\x12\x0e\x1a\x0c\x08\x03\x10\x01\x18\x04(\x010\x028\x03\x12\n\x12\x08\n\x06\n\x04\x00\x00\x08\x05'
         expected = [
-            Query([Map(Expression(bytes([CONST, INT8, 1])), 0)], [INT8]),
+            Query([Map(Expression([CONST, 1]), 0)]),
             Query([
                 TumblingWindow(WindowSizeType.COUNTBASED,
                                WindowAggregationType.COUNT, 3, 0, 1, 2, 3),
-                Filter(Expression(bytes([CONST, INT8, 8, LT])))
-            ], [INT32]
+                Filter(Expression([CONST, 8, LT]))
+            ]
             )
         ]
         op = protocol.decode_input_msg(raw_msg)

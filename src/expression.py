@@ -1,5 +1,4 @@
-from typing import Union
-from math import log, log10, log2, sqrt, floor, ceil, exp
+from math import log, sqrt, floor, ceil, exp
 from micropython import const
 import logging
 import struct
@@ -33,8 +32,8 @@ GT = const(6)
 EQ = const(7)
 
 ## relational expanded
-LTEQ = const(23)
-GTEQ = const(24)
+LTEQ = const(21)
+GTEQ = const(22)
 
 # arithmetic
 ADD = const(8)
@@ -43,15 +42,13 @@ MUL = const(10)
 DIV = const(11)
 MOD = const(12)
 LOG = const(13)
-LOG2 = const(14)
-LOG10 = const(15)
-POW = const(16)
-SQRT = const(17)
-EXP = const(18)
-CEIL = const(19)
-FLOOR = const(20)
-ROUND = const(21)
-ABS = const(22)
+POW = const(14)
+SQRT = const(15)
+EXP = const(16)
+CEIL = const(17)
+FLOOR = const(18)
+ROUND = const(19)
+ABS = const(20)
 
 instr_to_name = {
     CONST: "CONST",
@@ -70,8 +67,6 @@ instr_to_name = {
     DIV: "DIV",
     MOD: "MOD",
     LOG: "LOG",
-    LOG2: "LOG2",
-    LOG10: "LOG10",
     POW: "POW",
     SQRT: "SQRT",
     EXP: "EXP",
@@ -104,7 +99,7 @@ class Expression:
     TODO: contains a fair amount of code duplication that could be reduced
     """
 
-    def __init__(self, program: list[Union[int,float]]):
+    def __init__(self, program: list):
         self.program = program
         self.pc = 0  # program counter
         self.stack = environment.get_stack()
@@ -123,8 +118,6 @@ class Expression:
             DIV: self.__div,
             MOD: self.__mod,
             LOG: self.__log,
-            LOG2: self.__log2,
-            LOG10: self.__log10,
             POW: self.__pow,
             SQRT: self.__sqrt,
             EXP: self.__exp,
@@ -297,14 +290,6 @@ class Expression:
     def __log(self):
         l1 = self.stack.pop()
         self.stack.push(log(l1))
-
-    def __log2(self):
-        l1 = self.stack.pop()
-        self.stack.push(log2(l1))
-
-    def __log10(self):
-        l1 = self.stack.pop()
-        self.stack.push(log10(l1))
 
     def __pow(self):
         l2 = self.stack.pop()

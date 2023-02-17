@@ -20,7 +20,7 @@ class TestOperators(unittest.TestCase):
     def test_map_expression(self):
         op = Map(
             # 2 3 + 42 12 - *
-            Expression(bytes([CONST, INT8, 2, CONST, INT8, 3, ADD, CONST, INT8, 42, CONST, INT8, 12, SUB, MUL])),
+            Expression([CONST, 2, CONST, 3, ADD, CONST, 42, CONST, 12, SUB, MUL]),
             0
         )
         self.assertTrue(op())

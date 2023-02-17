@@ -1,4 +1,3 @@
-from typing import Union
 import minipb
 import logging
 import operators
@@ -73,7 +72,7 @@ __wire_output = minipb.Wire(__output_queryresponses_schema)
 def has_msg(name, msg) -> bool:
     return isinstance(msg, dict) and name in msg.keys() and msg[name] is not None
 
-def decode_instructions_msg(instructions) -> list[Union[int,float]]:
+def decode_instructions_msg(instructions) -> list:
     res = []
     for data in instructions:
         if has_msg("instruction",data):
