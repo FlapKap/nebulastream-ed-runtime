@@ -7,36 +7,27 @@ import datatypes
 # should correspond to schema found in ../proto/protocol.proto
 # these are placed here instead of in the operation objects, since they all use the expression schema
 
-__output_query_response_schema = (('id', 't'), ('response', '+a'),)
-__output_queryresponses_schema = (
-    ('responses', '+[', __output_query_response_schema, ']'),)
 
-__value_schema = (
-    ('value', (
+
+
+__data_schema = (
+        # An Enum is in protobuf represented as 32bit vint. Therefore 't' here
+        # https://github.com/dogtopus/minipb/wiki/High-level-Protobuf-Features#enums
+        ('instruction', 't'),
         ('_uint8_32', 'T'),
         ('_uint64', 'T'),
         ('_int8_32', 'z'),
         ('_int64', 'z'),
         ('_float', 'f'),
         ('_double', 'd'),
-    ),
-    ),
-)
-
-__data_schema = (
-    ('data', (
-        # An Enum is in protobuf represented as 32bit vint. Therefore 'a' here
-        # https://github.com/dogtopus/minipb/wiki/High-level-Protobuf-Features#enums
-        ('instruction', 'a'),
-        ('value', __value_schema),
     )
-    ),
-)
 
-__expression_schema = (('instructions', '+[', __data_schema, ']',),)
+__output_query_response_schema = (('id', 't'), ('response', '+[', __data_schema, ']'),)
+__output_queryresponses_schema = (
+    ('responses', '+[', __output_query_response_schema, ']'),)
 
-__filter_schema = (('predicate', __expression_schema,),)
-__map_schema = (('function', __expression_schema), ('attribute', 't'),)
+__filter_schema = (('predicate',  '+[',__data_schema,']',),)
+__map_schema = (('function', '+[',__data_schema,']'), ('attribute', 't'),)
 __window_schema = (
     ('size', 't'),
     ('sizeType', 't'),
@@ -56,7 +47,7 @@ __operation_types = (
 )
 
 __query_schema = (
-    ('resultType', 'a'),
+#    ('resultType', 'a'),
     ('operations', '+[', __operation_types, ']'),
 )
 
@@ -72,25 +63,23 @@ __wire_output = minipb.Wire(__output_queryresponses_schema)
 def has_msg(name, msg) -> bool:
     return isinstance(msg, dict) and name in msg.keys() and msg[name] is not None
 
-def decode_instructions_msg(instructions) -> list:
+def decode_data_msg(instructions) -> list:
     res = []
     for data in instructions:
         if has_msg("instruction",data):
             res.append(data["instruction"])
-        elif has_msg("value",data):
-            value = data["value"]
-            if has_msg("_uint8_32",value):
-                res.append(value["_uint8_32"])
-            elif has_msg("_uint64",value):
-                res.append(value["_uint64"])
-            elif has_msg("_int8_32",value):
-                res.append(value["_int8_32"])
-            elif has_msg("_int64",value):
-                res.append(value["_int64"])
-            elif has_msg("_float",value):
-                res.append(value["_float"])
-            elif has_msg("_double",value):
-                res.append(value["_double"])
+        elif has_msg("_uint8_32",data):
+            res.append(data["_uint8_32"])
+        elif has_msg("_uint64",data):
+            res.append(data["_uint64"])
+        elif has_msg("_int8_32",data):
+            res.append(data["_int8_32"])
+        elif has_msg("_int64",data):
+            res.append(data["_int64"])
+        elif has_msg("_float",data):
+            res.append(data["_float"])
+        elif has_msg("_double",data):
+            res.append(data["_double"])
     return res
 
 
@@ -108,11 +97,11 @@ def decode_input_msg(b) -> list[operators.Query]:
                     opmap['attribute'] = 0
 
                 operations.append(operators.Map(Expression(
-                    decode_instructions_msg(opmap['function']['instructions'])), opmap['attribute']))
+                    decode_data_msg(opmap['function'])), opmap['attribute']))
 
             if has_msg("filter", op_raw):
                 operations.append(operators.Filter(Expression(
-                    decode_instructions_msg(op_raw['filter']['predicate']['instructions']))))
+                    decode_data_msg(op_raw['filter']['predicate']))))
 
             if has_msg("window", op_raw):
                 opwindow = op_raw['window']

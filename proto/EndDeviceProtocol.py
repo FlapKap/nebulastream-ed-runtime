@@ -37,19 +37,14 @@ class WindowSizeType(betterproto.Enum):
 
 
 @dataclass
-class Value(betterproto.Message):
-    _uint8_32: int = betterproto.uint32_field(1, group="value")
-    _uint64: int = betterproto.uint64_field(2, group="value")
-    _int8_32: int = betterproto.sint32_field(3, group="value")
-    _int64: int = betterproto.sint64_field(4, group="value")
-    _float: float = betterproto.float_field(5, group="value")
-    _double: float = betterproto.double_field(6, group="value")
-
-
-@dataclass
 class Data(betterproto.Message):
     instruction: "ExpressionInstructions" = betterproto.enum_field(1, group="data")
-    value: "Value" = betterproto.message_field(2, group="data")
+    _uint8_32: int = betterproto.uint32_field(2, group="data")
+    _uint64: int = betterproto.uint64_field(3, group="data")
+    _int8_32: int = betterproto.sint32_field(4, group="data")
+    _int64: int = betterproto.sint64_field(5, group="data")
+    _float: float = betterproto.float_field(6, group="data")
+    _double: float = betterproto.double_field(7, group="data")
 
 
 @dataclass
@@ -60,7 +55,7 @@ class Output(betterproto.Message):
 @dataclass
 class OutputQueryResponse(betterproto.Message):
     id: int = betterproto.int32_field(1)
-    response: List["Value"] = betterproto.message_field(2)
+    response: List["Data"] = betterproto.message_field(2)
 
 
 @dataclass
@@ -91,17 +86,17 @@ class WindowOperation(betterproto.Message):
 
 
 @dataclass
-class Query(betterproto.Message):
-    # bytes resultType = 1; //For some reason minipb breaks if I make this a
-    # repeated enum or int32
-    operations: List["QueryOperation"] = betterproto.message_field(1)
+class Operation(betterproto.Message):
+    map: "MapOperation" = betterproto.message_field(1, group="operation")
+    filter: "FilterOperation" = betterproto.message_field(2, group="operation")
+    window: "WindowOperation" = betterproto.message_field(3, group="operation")
 
 
 @dataclass
-class QueryOperation(betterproto.Message):
-    map: "MapOperation" = betterproto.message_field(1)
-    filter: "FilterOperation" = betterproto.message_field(2)
-    window: "WindowOperation" = betterproto.message_field(3)
+class Query(betterproto.Message):
+    # bytes resultType = 1; //For some reason minipb breaks if I make this a
+    # repeated enum or int32
+    operations: List["Operation"] = betterproto.message_field(1)
 
 
 @dataclass

@@ -15,16 +15,6 @@ package EndDeviceProtocol;
 //     DOUBLE = 9;
 // }
 
-message Value {
-    oneof value {
-        uint32 _uint8_32 = 1;
-        uint64 _uint64 = 2;
-        sint32 _int8_32 = 3;
-        sint64 _int64 = 4;
-        float _float = 5;
-        double _double = 6;
-    }
-}
 
 enum ExpressionInstructions {
     CONST = 0;
@@ -44,14 +34,19 @@ enum ExpressionInstructions {
 message Data {
     oneof data{
         ExpressionInstructions instruction = 1;
-        Value value = 2;
+        uint32 _uint8_32 = 2;
+        uint64 _uint64 = 3;
+        sint32 _int8_32 = 4;
+        sint64 _int64 = 5;
+        float _float = 6;
+        double _double = 7;
     }
 }
 
 message Output {
     message QueryResponse {
         int32 id = 1;
-        repeated Value response = 2;
+        repeated Data response = 2;
     }
     repeated QueryResponse responses = 1;
 }
@@ -91,13 +86,14 @@ message WindowOperation {
     int32 resultAttribute = 6;
     int32 readAttribute = 7;
 }
-
-message Query {
-    message Operation {
+message Operation {
+    oneof operation {
         MapOperation map = 1;
         FilterOperation filter = 2;
-        WindowOperation window = 3;
+        WindowOperation window = 3;    
     }
+}
+message Query {
     //bytes resultType = 1; //For some reason minipb breaks if I make this a repeated enum or int32
     repeated Operation operations = 1;
     
