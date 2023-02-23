@@ -56,11 +56,11 @@ class TestProtocol(unittest.TestCase):
     def test_multiple_queries(self):
         raw_msg = b'\n\x0c\n\n\n\x08\n\x02\x08\x00\n\x02\x10\x08\n \n\x0e\x1a\x0c\x08\x03\x10\x01\x18\x04(\x010\x028\x03\n\x0e\x12\x0c\n\x02\x08\x00\n\x02 d\n\x02\x08\x05'
         expected = [
-            Query([Map(Expression([CONST, 1]), 0)]),
+            Query([Map(Expression([CONST, 8]), 0)]),
             Query([
                 TumblingWindow(WindowSizeType.COUNTBASED,
                                WindowAggregationType.COUNT, 3, 0, 1, 2, 3),
-                Filter(Expression([CONST, 8, LT]))
+                Filter(Expression([CONST, 50, LT]))
             ]
             )
         ]
