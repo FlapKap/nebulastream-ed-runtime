@@ -14,9 +14,13 @@ __data_schema = (
         # An Enum is in protobuf represented as 32bit vint. Therefore 't' here
         # https://github.com/dogtopus/minipb/wiki/High-level-Protobuf-Features#enums
         ('instruction', 't'),
-        ('_uint8_32', 'T'),
+        ('_uint8', 'T'),
+        ('_uint16', 'T'),
+        ('_uint32', 'T'),
         ('_uint64', 'T'),
-        ('_int8_32', 'z'),
+        ('_int8', 'z'),
+        ('_int16', 'z'),
+        ('_int32', 'z'),
         ('_int64', 'z'),
         ('_float', 'f'),
         ('_double', 'd'),
@@ -68,12 +72,20 @@ def decode_data_msg(instructions) -> list:
     for data in instructions:
         if has_msg("instruction",data):
             res.append(data["instruction"])
-        elif has_msg("_uint8_32",data):
-            res.append(data["_uint8_32"])
+        elif has_msg("_uint8",data):
+            res.append(data["_uint8"])
+        elif has_msg("_uint16",data):
+            res.append(data["_uint16"])    
+        elif has_msg("_uint32",data):
+            res.append(data["_uint32"])
         elif has_msg("_uint64",data):
             res.append(data["_uint64"])
-        elif has_msg("_int8_32",data):
-            res.append(data["_int8_32"])
+        elif has_msg("_int8",data):
+            res.append(data["_int8"])
+        elif has_msg("_int16",data):
+            res.append(data["_int16"])
+        elif has_msg("_int32",data):
+            res.append(data["_int32"])
         elif has_msg("_int64",data):
             res.append(data["_int64"])
         elif has_msg("_float",data):

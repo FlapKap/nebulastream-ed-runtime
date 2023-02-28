@@ -34,7 +34,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(op, expected)
 
     def test_map_filter_msg(self):
-        raw_msg = b'\n \n\x0e\n\x0c\n\x02\x08\x00\n\x02\x10\x08\n\x02\x08\n\n\x0e\x12\x0c\n\x02\x08\x00\n\x02 d\n\x02\x08\x06'
+        raw_msg = b'\n \n\x0e\n\x0c\n\x02\x08\x00\n\x02\x10\x08\n\x02\x08\n\n\x0e\x12\x0c\n\x02\x08\x00\n\x020d\n\x02\x08\x06'
         ops = protocol.decode_input_msg(raw_msg)
 
         expected = [Query([
@@ -54,7 +54,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(op, expected)
 
     def test_multiple_queries(self):
-        raw_msg = b'\n\x0c\n\n\n\x08\n\x02\x08\x00\n\x02\x10\x08\n \n\x0e\x1a\x0c\x08\x03\x10\x01\x18\x04(\x010\x028\x03\n\x0e\x12\x0c\n\x02\x08\x00\n\x02 d\n\x02\x08\x05'
+        raw_msg = b'\n\x0c\n\n\n\x08\n\x02\x08\x00\n\x02\x10\x08\n \n\x0e\x1a\x0c\x08\x03\x10\x01\x18\x04(\x010\x028\x03\n\x0e\x12\x0c\n\x02\x08\x00\n\x020d\n\x02\x08\x05'
         expected = [
             Query([Map(Expression([CONST, 8]), 0)]),
             Query([
@@ -72,11 +72,11 @@ class TestProtocol(unittest.TestCase):
         msg = protocol.encode_output_msg(
             {'responses': [
                 {'id': 1, 'response': [
-                    {'_uint8_32': ord('H'), 'instruction':None, '_uint64':None, '_int8_32':None, '_int64':None, '_float':None, '_double':None},
-                    {'_uint8_32': ord('E'), 'instruction':None, '_uint64':None, '_int8_32':None, '_int64':None, '_float':None, '_double':None},
-                    {'_uint8_32': ord('L'), 'instruction':None, '_uint64':None, '_int8_32':None, '_int64':None, '_float':None, '_double':None},
-                    {'_uint8_32': ord('L'), 'instruction':None, '_uint64':None, '_int8_32':None, '_int64':None, '_float':None, '_double':None},
-                    {'_uint8_32': ord('O'), 'instruction':None, '_uint64':None, '_int8_32':None, '_int64':None, '_float':None, '_double':None}
+                    {'_uint8': ord('H'), 'instruction':None, '_uint16':None, '_uint32':None, '_uint64':None, '_int8':None, '_int16':None, '_int32':None, '_int64':None, '_float':None, '_double':None},
+                    {'_uint8': ord('E'), 'instruction':None, '_uint16':None, '_uint32':None, '_uint64':None, '_int8':None, '_int16':None, '_int32':None, '_int64':None, '_float':None, '_double':None},
+                    {'_uint8': ord('L'), 'instruction':None, '_uint16':None, '_uint32':None, '_uint64':None, '_int8':None, '_int16':None, '_int32':None, '_int64':None, '_float':None, '_double':None},
+                    {'_uint8': ord('L'), 'instruction':None, '_uint16':None, '_uint32':None, '_uint64':None, '_int8':None, '_int16':None, '_int32':None, '_int64':None, '_float':None, '_double':None},
+                    {'_uint8': ord('O'), 'instruction':None, '_uint16':None, '_uint32':None, '_uint64':None, '_int8':None, '_int16':None, '_int32':None, '_int64':None, '_float':None, '_double':None}
                 ]
                 }
             ]
@@ -87,10 +87,10 @@ class TestProtocol(unittest.TestCase):
     def test_output_multiple_responses(self):
         raw_msg = b'\n\x06\x08\x01\x12\x02\x10H\n\x06\x08\x02\x12\x02\x10E\n\x06\x08\x03\x12\x02\x10L\n\x06\x08\x04\x12\x02\x10L\n\x06\x08\x05\x12\x02\x10O'
         msg = protocol.encode_output_msg({'responses': [
-            {'id': 1, 'response': [{'_uint8_32': ord('H'), 'instruction':None, '_uint64':None, '_int8_32':None, '_int64':None, '_float':None, '_double':None}]},
-            {'id': 2, 'response': [{'_uint8_32': ord('E'), 'instruction':None, '_uint64':None, '_int8_32':None, '_int64':None, '_float':None, '_double':None}]},
-            {'id': 3, 'response': [{'_uint8_32': ord('L'), 'instruction':None, '_uint64':None, '_int8_32':None, '_int64':None, '_float':None, '_double':None}]},
-            {'id': 4, 'response': [{'_uint8_32': ord('L'), 'instruction':None, '_uint64':None, '_int8_32':None, '_int64':None, '_float':None, '_double':None}]},
-            {'id': 5, 'response': [{'_uint8_32': ord('O'), 'instruction':None, '_uint64':None, '_int8_32':None, '_int64':None, '_float':None, '_double':None}]},
+            {'id': 1, 'response': [{'_uint8': ord('H'), 'instruction':None, '_uint16':None, '_uint32':None, '_uint64':None, '_int8':None, '_int16':None, '_int32':None, '_int64':None, '_float':None, '_double':None}]},
+            {'id': 2, 'response': [{'_uint8': ord('E'), 'instruction':None, '_uint16':None, '_uint32':None, '_uint64':None, '_int8':None, '_int16':None, '_int32':None, '_int64':None, '_float':None, '_double':None}]},
+            {'id': 3, 'response': [{'_uint8': ord('L'), 'instruction':None, '_uint16':None, '_uint32':None, '_uint64':None, '_int8':None, '_int16':None, '_int32':None, '_int64':None, '_float':None, '_double':None}]},
+            {'id': 4, 'response': [{'_uint8': ord('L'), 'instruction':None, '_uint16':None, '_uint32':None, '_uint64':None, '_int8':None, '_int16':None, '_int32':None, '_int64':None, '_float':None, '_double':None}]},
+            {'id': 5, 'response': [{'_uint8': ord('O'), 'instruction':None, '_uint16':None, '_uint32':None, '_uint64':None, '_int8':None, '_int16':None, '_int32':None, '_int64':None, '_float':None, '_double':None}]},
         ]})
         self.assertEqual(msg, raw_msg)

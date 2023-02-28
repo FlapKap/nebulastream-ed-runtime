@@ -12,7 +12,7 @@ if __name__ == "__main__":
         Query(operations=[Operation(MapOperation(
             [
                 Data(Einstr.CONST),
-                Data(_uint8_32=8),
+                Data(_uint8=8),
                 Data(Einstr.MUL)
             ],
             attribute=1))])
@@ -20,15 +20,15 @@ if __name__ == "__main__":
 
     filter_msg = Message(queries=[Query([Operation(filter=FilterOperation(
         predicate=[Data(Einstr.CONST),
-                              Data(_uint8_32=8),
+                              Data(_uint8=8),
                               Data(Einstr.LT)]
                              ))])])
 
     map_filter_msg = Message(queries=[Query([
         Operation(map=MapOperation(
             [Data(Einstr.CONST),
-                        Data(_uint8_32=8), Data(Einstr.MUL)])),
-        Operation(filter=FilterOperation(predicate=[Data(Einstr.CONST), Data(_int8_32=50), Data(Einstr.GT)]))])])
+                        Data(_uint8=8), Data(Einstr.MUL)])),
+        Operation(filter=FilterOperation(predicate=[Data(Einstr.CONST), Data(_int8=50), Data(Einstr.GT)]))])])
 
     window_msg = Message(queries=[Query([
         Operation(window=WindowOperation(3, WindowSizeType.COUNTBASED, WindowAggregationType.COUNT, 0, 1, 2, 3))])])
@@ -39,26 +39,26 @@ if __name__ == "__main__":
                 operations=[Operation(
                     map=MapOperation(
                         function=[Data(Einstr.CONST),
-                                             Data(_uint8_32=8)], attribute=0))
+                                             Data(_uint8=8)], attribute=0))
                             ]
             ),
             Query([
                 Operation(window=WindowOperation(
                     3, WindowSizeType.COUNTBASED, WindowAggregationType.COUNT, 0, 1, 2, 3)),
                 Operation(filter=FilterOperation(
-                    predicate=[Data(Einstr.CONST), Data(_int8_32=50), Data(Einstr.LT)]))])
+                    predicate=[Data(Einstr.CONST), Data(_int8=50), Data(Einstr.LT)]))])
         ]
     )
 
     output_single_msg = Output([OutputQueryResponse(
-        1, [Data(_uint8_32=ord('H')), Data(_uint8_32=ord('E')), Data(_uint8_32=ord('L')), Data(_uint8_32=ord('L')), Data(_uint8_32=ord('O'))])])
+        1, [Data(_uint8=ord('H')), Data(_uint8=ord('E')), Data(_uint8=ord('L')), Data(_uint8=ord('L')), Data(_uint8=ord('O'))])])
 
     output_multiple_msg = Output([
-        OutputQueryResponse(1, [Data(_uint8_32=ord('H'))]),
-        OutputQueryResponse(2, [Data(_uint8_32=ord('E'))]),
-        OutputQueryResponse(3, [Data(_uint8_32=ord('L'))]),
-        OutputQueryResponse(4, [Data(_uint8_32=ord('L'))]),
-        OutputQueryResponse(5, [Data(_uint8_32=ord('O'))]),
+        OutputQueryResponse(1, [Data(_uint8=ord('H'))]),
+        OutputQueryResponse(2, [Data(_uint8=ord('E'))]),
+        OutputQueryResponse(3, [Data(_uint8=ord('L'))]),
+        OutputQueryResponse(4, [Data(_uint8=ord('L'))]),
+        OutputQueryResponse(5, [Data(_uint8=ord('O'))]),
     ])
 
     print("empty_msg")

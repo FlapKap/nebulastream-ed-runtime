@@ -39,12 +39,16 @@ class WindowSizeType(betterproto.Enum):
 @dataclass
 class Data(betterproto.Message):
     instruction: "ExpressionInstructions" = betterproto.enum_field(1, group="data")
-    _uint8_32: int = betterproto.uint32_field(2, group="data")
-    _uint64: int = betterproto.uint64_field(3, group="data")
-    _int8_32: int = betterproto.sint32_field(4, group="data")
-    _int64: int = betterproto.sint64_field(5, group="data")
-    _float: float = betterproto.float_field(6, group="data")
-    _double: float = betterproto.double_field(7, group="data")
+    _uint8: int = betterproto.uint32_field(2, group="data")
+    _uint16: int = betterproto.uint32_field(3, group="data")
+    _uint32: int = betterproto.uint32_field(4, group="data")
+    _uint64: int = betterproto.uint64_field(5, group="data")
+    _int8: int = betterproto.sint32_field(6, group="data")
+    _int16: int = betterproto.sint32_field(7, group="data")
+    _int32: int = betterproto.sint32_field(8, group="data")
+    _int64: int = betterproto.sint64_field(9, group="data")
+    _float: float = betterproto.float_field(10, group="data")
+    _double: float = betterproto.double_field(11, group="data")
 
 
 @dataclass
